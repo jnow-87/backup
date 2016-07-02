@@ -1,0 +1,64 @@
+/* output declarations */
+%struct-type
+%omit-struct-type
+%readonly-tables
+%global-table
+%includes
+%language=C++
+
+/* delimiter */
+%delimiters=","
+
+/* naming */
+%define slot-name name
+%define hash-function-name hash
+%define lookup-function-name lookup
+%define class-name opt_tbl
+
+
+/* c-code */
+%{
+	#include <common/log.h>
+	#include <common/opt.h>
+
+
+	/* option description table */
+	static opt_desc_t const desc[] = {
+		{ .id = OPT_LOG_FILE,		.long_name = "--log-file",		.short_name = "-l", .arg = "<file>",	.help = "set log file to <file>" },
+		{ .id = OPT_VERBOSE,		.long_name = "--verbose",		.short_name = "-v", .arg = "",			.help =	"enable verbose output" },
+		{ .id = OPT_CONFIG_FILE,	.long_name = "--config-file",	.short_name = "-f",	.arg = "<file>",	.help = "use <file> as configuration file" },
+		{ .id = OPT_CONFIG,			.long_name = "--config",		.short_name = "-c",	.arg = "<name>",	.help = "apply configuration <name>" },
+		{ .id = OPT_RESTORE,		.long_name = "--restore",		.short_name = "-r",	.arg = "<archive>",	.help = "restore backup from <archive>" },
+		{ .id = OPT_INDICATE,		.long_name = "--indicate",		.short_name = "-i",	.arg = "",			.help = "indicate modifications but do not execute" },
+		{ .id = OPT_ARCHIVE,		.long_name = "--archive",		.short_name = "-a",	.arg = "<archive>",	.help = "create archive <archive>, otherwise copy files to output directory" },
+		{ .id = OPT_PRESERVE,		.long_name = "--preserve",		.short_name = "-p",	.arg = "",			.help = "preserve temporary files" },
+		{ .id = OPT_HELP,			.long_name = "--help",			.short_name = "-h",	.arg = "",			.help = "print this help message" },
+		{ .id = OPT_VERSION,		.long_name = "--version",		.short_name = "",	.arg = "",			.help = "print version tag and git hash" },
+	};
+%}
+
+/* struct-type definition */
+struct opt_t;
+
+%%
+# name			description
+--log-file,		desc + 0
+-l,				desc + 0
+--verbose,		desc + 1
+-v,				desc + 1
+--config-file,	desc + 2
+-f,				desc + 2
+--config,		desc + 3
+-c,				desc + 3
+--restore,		desc + 4
+-r,				desc + 4
+--indicate,		desc + 5
+-i,				desc + 5
+--archive,		desc + 6
+-a,				desc + 6
+--preserve,		desc + 7
+-p,				desc + 7
+--help,			desc + 8
+-h,				desc + 8
+--version,		desc + 9
+%%
