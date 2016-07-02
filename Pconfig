@@ -1,0 +1,32 @@
+mainmenu "backup configuration"
+
+config LOG_FILE
+	string "log-file (default)"
+	default "/var/log/backup.log"
+
+config CONFIG_FILE
+	string "config file (default)"
+	default "/etc/backup.cfg"
+
+config CONFIG
+	string "config (default)"
+	default "default"
+
+choice
+	prompt "Build type"
+
+	config BUILD_RELEASE
+		bool "release"
+
+	config BUILD_DEBUG
+		bool "debug"
+endchoice
+
+menu "Hidden"
+	visible if 0
+
+	config BUILD_TYPE
+		string "Build type"
+		default "debug" if BUILD_DEBUG
+		default "release" if BUILD_RELEASE
+endmenu
