@@ -44,9 +44,9 @@ gperfflags := $(GPERFFLAGS) $(CONFIG_GPERFFLAGS)
 ####
 .PHONY: all
 ifeq ($(CONFIG_BUILD_DEBUG),y)
-all: cflags += -g
-all: cxxflags += -g
-all: asflags += -g
+all: cflags += -g -O0
+all: cxxflags += -g -O0
+all: asflags += -g -O0
 endif
 
 all: $(lib) $(bin)
