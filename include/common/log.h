@@ -24,7 +24,7 @@ enum log_level_t{
 #define TODO(msg, ...)	log::print(TODO,	"[TBD] %15.15s:%-5d %15.15s(): " msg, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #define USER(msg, ...)	log::print(USER, msg, ##__VA_ARGS__)
 
-#define LOG_LEVEL	((log_level_t)(USER))
+#define LOG_LEVEL	((log_level_t)(USER | ERROR))
 
 
 /* class */

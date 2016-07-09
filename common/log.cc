@@ -56,7 +56,10 @@ void log::print(log_level_t lvl, char const *msg, ...){
 
 	if(lvl & log_level){
 		va_start(lst, msg);
-		vprintf(msg, lst);
+
+		if(lvl & ERROR)	vfprintf(stderr, msg, lst);
+		else			vprintf(msg, lst);
+
 		va_end(lst);
 	}
 
