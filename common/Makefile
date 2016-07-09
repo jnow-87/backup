@@ -1,4 +1,4 @@
-obj-y := log.o argv.o opt.hash.o
+obj-y := log.o argv.o opt.hash.o string.o
 
 
 ## additional dependencies for generated headers
