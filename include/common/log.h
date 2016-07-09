@@ -20,7 +20,7 @@ enum log_level_t{
 
 
 /* macros */
-#define ERROR(msg, ...)	log::print(ERROR, "", ##__VA_ARGS__)
+#define ERROR(msg, ...)	log::print(ERROR, msg, ##__VA_ARGS__)
 #define TODO(msg, ...)	log::print(TODO,	"[TBD] %15.15s:%-5d %15.15s(): " msg, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #define USER(msg, ...)	log::print(USER, msg, ##__VA_ARGS__)
 
