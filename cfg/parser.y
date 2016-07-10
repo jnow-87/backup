@@ -11,6 +11,8 @@
 	#include <cfg/lexer.lex.h>
 	#include <cfg/cfg.h>
 	#include <cfg/dir.h>
+	#include <string.h>
+	#include <errno.h>
 	#include <map>
 
 
@@ -72,16 +74,21 @@
 
 /* init code */
 %initial-action{
-	/* open config file */
-	fp = fopen(file, "r");
-
-	if(fp == 0)
-		return 1;
-
 	/* init results */
 	*valid = true;
 	*cfg_lst = 0;
 	*dir_lst = 0;
+
+	/* open config file */
+	fp = fopen(file, "r");
+
+	if(fp == 0){
+		ERROR("error reading config file \"%s\" -- %s\n", file, strerror(errno));
+
+		*valid = false;
+
+		return 1;
+	}
 
 	/* start lexer */
 	cfgrestart(fp);
