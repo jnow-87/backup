@@ -16,7 +16,8 @@ public:
 	static log_level_t log_level;
 
 	static char *config_file,
-		 		*config;
+		 		*config,
+				*tmp_dir;
 
 	static char *archive;
 

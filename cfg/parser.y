@@ -150,6 +150,7 @@
 
 // config options
 %token CFG_OUT_DIR
+%token CFG_TMP_DIR
 %token CFG_ARCHIVE
 %token CFG_INDICATE
 %token CFG_PRESERVE
@@ -206,6 +207,7 @@ stmt :	SPEC_CFG IDFR '=' '{' config-member '}'						{ $5->name = stralloc($2.s, 
 /* config */
 config-member :	%empty												{ $$ = new cfg_t(); cfgunput(','); }
 			  |	config-member ',' CFG_OUT_DIR '=' string			{ $$->out_dir = stralloc((char*)($5->c_str()), $5->length()); delete $5; }
+			  |	config-member ',' CFG_TMP_DIR '=' string			{ $$->tmp_dir = stralloc((char*)($5->c_str()), $5->length()); delete $5; }
 			  |	config-member ',' CM_RSYNC_DIR '=' string			{ $$->rsync_dir = stralloc((char*)($5->c_str()), $5->length()); delete $5; }
 			  |	config-member ',' CFG_ARCHIVE '=' integer			{ $$->archive = $5; }
 			  |	config-member ',' CFG_INDICATE '=' integer			{ $$->indicate = $5; }

@@ -43,6 +43,7 @@ int main(int argc, char **argv){
 	list_for_each(cfg_lst, cfg){
 		USER("config: %s\n"
 			 "\toutdir: %s\n"
+			 "\ttmpdir: %s\n"
 			 "\trsyncdir: %s\n"
 			 "\tarchive: %d\n"
 			 "\tpreserve: %d\n"
@@ -51,6 +52,7 @@ int main(int argc, char **argv){
 			 "\n",
 			 cfg->name,
 			 cfg->out_dir,
+			 cfg->tmp_dir,
 			 cfg->rsync_dir,
 			 cfg->archive,
 			 cfg->preserve,

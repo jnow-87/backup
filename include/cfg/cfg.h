@@ -10,6 +10,7 @@ public:
 
 	char *name,
 		 *out_dir,
+		 *tmp_dir,
 		 *rsync_dir;
 
 	bool archive,

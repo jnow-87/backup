@@ -48,6 +48,7 @@
 
 	/* config options */
 ".out_dir"						{ return CFG_OUT_DIR; }
+".tmp_dir"						{ return CFG_TMP_DIR; }
 ".archive"						{ return CFG_ARCHIVE; }
 ".indicate"						{ return CFG_INDICATE; }
 ".preserve"						{ return CFG_PRESERVE; }

@@ -12,6 +12,10 @@ config CONFIG
 	string "config (default)"
 	default "default"
 
+config TMP_DIR
+	string "directory for temporary files (default)"
+	default "/tmp/backup"
+
 choice
 	prompt "Build type"
 
