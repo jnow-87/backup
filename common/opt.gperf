@@ -32,7 +32,7 @@
 		{ .id = OPT_TMP_DIR,		.long_name = "--tmp",			.short_name = "-t",	.arg = "<path>",	.help = "store temporary files to <path>" },
 		{ .id = OPT_RESTORE,		.long_name = "--restore",		.short_name = "-r",	.arg = "<archive>",	.help = "restore backup from <archive>" },
 		{ .id = OPT_INDICATE,		.long_name = "--indicate",		.short_name = "-i",	.arg = "",			.help = "indicate modifications but do not execute" },
-		{ .id = OPT_ARCHIVE,		.long_name = "--archive",		.short_name = "-a",	.arg = "<archive>",	.help = "create archive <archive>, otherwise copy files to output directory" },
+		{ .id = OPT_ARCHIVE,		.long_name = "--archive",		.short_name = "-a",	.arg = "",			.help = "create output archive in output directory" },
 		{ .id = OPT_PRESERVE,		.long_name = "--preserve",		.short_name = "-p",	.arg = "",			.help = "preserve temporary files" },
 		{ .id = OPT_HELP,			.long_name = "--help",			.short_name = "-h",	.arg = "",			.help = "print this help message" },
 		{ .id = OPT_VERSION,		.long_name = "--version",		.short_name = "",	.arg = "",			.help = "print version tag and git hash" },
