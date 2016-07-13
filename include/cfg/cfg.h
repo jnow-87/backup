@@ -8,10 +8,13 @@ public:
 	cfg_t();
 	~cfg_t();
 
-	char *name,
-		 *out_dir,
+	char *name;
+
+	char *out_dir,
 		 *tmp_dir,
 		 *rsync_dir;
+
+	char *log_file;
 
 	bool archive,
 		 indicate,

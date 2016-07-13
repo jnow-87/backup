@@ -27,9 +27,9 @@
 /* class definition */
 char *argv::config_file = (char*)CONFIG_CONFIG_FILE;
 char *argv::config = (char*)CONFIG_CONFIG;
+char *argv::out_dir = (char*)CONFIG_OUT_DIR;
 char *argv::tmp_dir = (char*)CONFIG_TMP_DIR;
 char *argv::archive = 0;
-bool argv::restore = false;
 bool argv::compress = false;
 bool argv::indicate = false;
 bool argv::preserve = false;
@@ -69,12 +69,16 @@ int argv::parse(int argc, char **argv){
 			argv::config = GET_ARG();
 			break;
 
+		case OPT_OUT_DIR:
+			out_dir = GET_ARG();
+			break;
+
 		case OPT_TMP_DIR:
 			argv::tmp_dir = GET_ARG();
 			break;
 
 		case OPT_RESTORE:
-			argv::restore = true;
+			argv::compress = false;
 			argv::archive = GET_ARG();
 			break;
 

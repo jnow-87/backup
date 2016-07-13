@@ -28,6 +28,7 @@
 		{ .id = OPT_VERBOSE,		.long_name = "--verbose",		.short_name = "-v", .arg = "",			.help =	"enable verbose output" },
 		{ .id = OPT_CONFIG_FILE,	.long_name = "--config-file",	.short_name = "-f",	.arg = "<file>",	.help = "use <file> as configuration file" },
 		{ .id = OPT_CONFIG,			.long_name = "--config",		.short_name = "-c",	.arg = "<name>",	.help = "apply configuration <name>" },
+		{ .id = OPT_OUT_DIR,		.long_name = "--out",			.short_name = "-o",	.arg = "<path>",	.help = "store temporary files to <path>" },
 		{ .id = OPT_TMP_DIR,		.long_name = "--tmp",			.short_name = "-t",	.arg = "<path>",	.help = "store temporary files to <path>" },
 		{ .id = OPT_RESTORE,		.long_name = "--restore",		.short_name = "-r",	.arg = "<archive>",	.help = "restore backup from <archive>" },
 		{ .id = OPT_INDICATE,		.long_name = "--indicate",		.short_name = "-i",	.arg = "",			.help = "indicate modifications but do not execute" },
@@ -51,17 +52,19 @@ struct opt_t;
 -f,				desc + 2
 --config,		desc + 3
 -c,				desc + 3
---tmp,			desc + 4
--t,				desc + 4
---restore,		desc + 5
--r,				desc + 5
---indicate,		desc + 6
--i,				desc + 6
---archive,		desc + 7
--a,				desc + 7
---preserve,		desc + 8
--p,				desc + 8
---help,			desc + 9
--h,				desc + 9
---version,		desc + 10
+--out,			desc + 4
+-o,				desc + 4
+--tmp,			desc + 5
+-t,				desc + 5
+--restore,		desc + 6
+-r,				desc + 6
+--indicate,		desc + 7
+-i,				desc + 7
+--archive,		desc + 8
+-a,				desc + 8
+--preserve,		desc + 9
+-p,				desc + 9
+--help,			desc + 10
+-h,				desc + 10
+--version,		desc + 11
 %%

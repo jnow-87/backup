@@ -6,6 +6,7 @@ cfg_t::cfg_t(){
 	out_dir = 0;
 	tmp_dir = 0;
 	rsync_dir = 0;
+	log_file = 0;
 
 	archive = false;
 	indicate = false;

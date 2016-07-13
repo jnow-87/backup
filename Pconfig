@@ -12,6 +12,10 @@ config CONFIG
 	string "config (default)"
 	default "default"
 
+config OUT_DIR
+	string "output directory (default)"
+	default "/tmp/backup_out"
+
 config TMP_DIR
 	string "directory for temporary files (default)"
 	default "/tmp/backup"

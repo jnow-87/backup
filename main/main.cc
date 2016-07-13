@@ -39,9 +39,9 @@ int main(int argc, char **argv){
 	if(valid)	USER(FG_GREEN "config file ok\n" RESET_ATTR);
 	else		USER(FG_RED "syntax error detected\n" RESET_ATTR);
 
-
 	list_for_each(cfg_lst, cfg){
 		USER("config: %s\n"
+			 "\tlogfile: %s\n"
 			 "\toutdir: %s\n"
 			 "\ttmpdir: %s\n"
 			 "\trsyncdir: %s\n"
@@ -51,6 +51,7 @@ int main(int argc, char **argv){
 			 "\tverbose: %d\n"
 			 "\n",
 			 cfg->name,
+			 cfg->log_file,
 			 cfg->out_dir,
 			 cfg->tmp_dir,
 			 cfg->rsync_dir,
