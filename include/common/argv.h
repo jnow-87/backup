@@ -32,6 +32,14 @@
 /* class */
 class argv{
 public:
+	/* types */
+	typedef struct{
+		unsigned int verbosity:1,
+					 compress:1,
+					 indicate:1,
+					 preserve:1;
+	} set_t;
+
 	/* public functions */
 	static int parse(int argc, char **argv);
 
@@ -42,7 +50,7 @@ public:
 	static unsigned int verbosity;
 
 	static char *config_file,
-				*config;
+		 		*config;
 
 	static char *out_dir,
 				*tmp_dir;
@@ -52,6 +60,8 @@ public:
 	static bool compress,
 		 		indicate,
 		 		preserve;
+
+	static set_t set;
 
 private:
 	/* private functions */

@@ -8,9 +8,8 @@
 
 /**
  * TODO
- * 	- set tmp directory through command line and config
- * 	- verbose output via different levels
  * 	- main functionality
+ * 		- apply config and argv
  * 		- rsync_dir is relative to out_dir or absolute
  * 		- options: handle_normale handle_rsync
  * 		- handle "special" directories like "homes"
@@ -29,7 +28,8 @@ int main(int argc, char **argv){
 	if(argv::parse(argc, argv) != 0)
 		return 1;
 
-	log::set_log_level(argv::verbosity);
+	if(argv::set.verbosity)
+		log::set_log_level(argv::verbosity);
 
 	ARGV_PRINT();
 

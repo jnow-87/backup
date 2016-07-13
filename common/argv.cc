@@ -35,6 +35,7 @@ bool argv::indicate = false;
 bool argv::preserve = false;
 char *argv::log_file = (char*)CONFIG_LOG_FILE;
 unsigned int argv::verbosity = 0;
+argv::set_t argv::set = { 0 };
 
 
 /**
@@ -56,17 +57,17 @@ int argv::parse(int argc, char **argv){
 		opt = opt_tbl::lookup(argv[i], strlen(argv[i]));
 
 		if(opt == 0)
-			argv::help(argv[0], "invalid command line option \"%s\"", argv[i]);
+			help(argv[0], "invalid command line option \"%s\"", argv[i]);
 
 		desc = opt->desc;
 
 		switch(desc->id){
 		case OPT_CONFIG_FILE:
-			argv::config_file = GET_ARG();
+			config_file = GET_ARG();
 			break;
 
 		case OPT_CONFIG:
-			argv::config = GET_ARG();
+			config = GET_ARG();
 			break;
 
 		case OPT_OUT_DIR:
@@ -74,36 +75,41 @@ int argv::parse(int argc, char **argv){
 			break;
 
 		case OPT_TMP_DIR:
-			argv::tmp_dir = GET_ARG();
+			tmp_dir = GET_ARG();
 			break;
 
 		case OPT_RESTORE:
-			argv::compress = false;
-			argv::archive = GET_ARG();
+			set.compress = 1;
+			compress = false;
+			archive = GET_ARG();
 			break;
 
 		case OPT_ARCHIVE:
-			argv::compress = true;
+			set.compress = 1;
+			compress = true;
 			break;
 
 		case OPT_INDICATE:
-			argv::indicate = true;
+			set.indicate = 1;
+			indicate = true;
 			break;
 
 		case OPT_PRESERVE:
-			argv::preserve = true;
+			set.preserve = 1;
+			preserve = true;
 			break;
 
 		case OPT_LOG_FILE:
-			argv::log_file = GET_ARG();
+			log_file = GET_ARG();
 			break;
 
 		case OPT_VERBOSE:
+			set.verbosity = 1;
 			verbosity = atoi(GET_ARG());
 			break;
 
 		case OPT_HELP:
-			argv::help(argv[0]);
+			help(argv[0]);
 			break;
 
 		case OPT_VERSION:
