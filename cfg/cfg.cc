@@ -11,7 +11,8 @@ cfg_t::cfg_t(){
 	archive = false;
 	indicate = false;
 	preserve = false;
-	verbose = false;
+
+	verbosity = 0;
 }
 
 cfg_t::~cfg_t(){

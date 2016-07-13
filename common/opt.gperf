@@ -25,7 +25,7 @@
 	/* option description table */
 	static opt_desc_t const desc[] = {
 		{ .id = OPT_LOG_FILE,		.long_name = "--log-file",		.short_name = "-l", .arg = "<file>",	.help = "set log file to <file>" },
-		{ .id = OPT_VERBOSE,		.long_name = "--verbose",		.short_name = "-v", .arg = "",			.help =	"enable verbose output" },
+		{ .id = OPT_VERBOSE,		.long_name = "--verbose",		.short_name = "-v", .arg = "<level>",	.help =	"increase output verbosity" },
 		{ .id = OPT_CONFIG_FILE,	.long_name = "--config-file",	.short_name = "-f",	.arg = "<file>",	.help = "use <file> as configuration file" },
 		{ .id = OPT_CONFIG,			.long_name = "--config",		.short_name = "-c",	.arg = "<name>",	.help = "apply configuration <name>" },
 		{ .id = OPT_OUT_DIR,		.long_name = "--out",			.short_name = "-o",	.arg = "<path>",	.help = "store temporary files to <path>" },

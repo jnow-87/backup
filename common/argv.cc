@@ -34,7 +34,7 @@ bool argv::compress = false;
 bool argv::indicate = false;
 bool argv::preserve = false;
 char *argv::log_file = (char*)CONFIG_LOG_FILE;
-log_level_t argv::log_level = LOG_LEVEL;
+unsigned int argv::verbosity = 0;
 
 
 /**
@@ -99,7 +99,7 @@ int argv::parse(int argc, char **argv){
 			break;
 
 		case OPT_VERBOSE:
-			argv::log_level = (log_level_t)(argv::log_level | ERROR | TODO);
+			verbosity = atoi(GET_ARG());
 			break;
 
 		case OPT_HELP:
@@ -107,42 +107,12 @@ int argv::parse(int argc, char **argv){
 			break;
 
 		case OPT_VERSION:
-			printf("version info:\n" VERSION "\n");
+			USER("version info:\n" VERSION "\n");
 			exit(0);
 		}
 	}
 
 	return 0;
-}
-
-
-/**
- * \brief	print the current set of arguments
- */
-void argv::print(void){
-	printf("%s: %s\n"
-		   "%s: %s\n"
-		   "%s: %s\n"
-		   "%s: %d\n"
-		   "%s: %d\n"
-		   "%s: %d\n"
-		   "%s: %d\n"
-		   "%s: %d\n"
-		   "%s: %s\n"
-		   "%s: 0x%x (%s (0x%x), %s (0x%x), %s (0x%x))\n"
-		   ,
-		   "config-file", config_file,
-		   "config", config,
-		   "tmp-dir", tmp_dir,
-		   "archive", archive ? 1 : 0,
-		   "restore", restore ? 1 : 0,
-		   "compress", compress ? 1 : 0,
-		   "indicate", indicate ? 1 : 0,
-		   "preserve", preserve ? 1 : 0,
-		   "log-file", log_file,
-		   "log-level", log_level,
-		   "ERROR", ERROR, "USER", USER, "TODO", TODO
-	);
 }
 
 /**
@@ -162,14 +132,14 @@ void argv::help(char *pname, char const *msg, ...){
 	/* print message */
 	if(msg){
 		va_start(lst, msg);
-		printf(FG_RED "\t");
-		vprintf(msg, lst);
-		printf(RESET_ATTR "\n\n");
+		ERROR(FG_RED "\t");
+		VERROR(msg, lst);
+		ERROR(RESET_ATTR "\n\n");
 		va_end(lst);
 	}
 
 	/* print header */
-	printf("usage: %s <options>\n\noptions:\n", pname);
+	USER("usage: %s <options>\n\noptions:\n", pname);
 
 	/* print options and help messages */
 	for(i=opt_tbl::MIN_HASH_VALUE; i<=opt_tbl::MAX_HASH_VALUE; ++i){
@@ -177,11 +147,11 @@ void argv::help(char *pname, char const *msg, ...){
 		desc = opt->desc;
 
 		if(opt->name != 0 && strncmp(opt->name, "--", 2) == 0)
-			printf("\t%15.15s%s%2s %-10.10s\t%s\n", desc->long_name, (desc->short_name[0] ? ", " : ""), desc->short_name, desc->arg, desc->help);
+			USER("\t%15.15s%s%2s %-10.10s\t%s\n", desc->long_name, (desc->short_name[0] ? ", " : ""), desc->short_name, desc->arg, desc->help);
 	}
 
 	/* print default settings */
-	printf("\ndefault settings:\n"
+	USER("\ndefault settings:\n"
 		   "\t%15.15s\t%s\n"
 		   "\t%15.15s\t%s\n",
 		   "config-file", CONFIG_CONFIG_FILE,

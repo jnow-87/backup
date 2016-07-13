@@ -214,7 +214,7 @@ config-member :	%empty												{ $$ = new cfg_t(); cfgunput(','); }
 			  |	config-member ',' CFG_ARCHIVE '=' integer			{ $$->archive = $5; }
 			  |	config-member ',' CFG_INDICATE '=' integer			{ $$->indicate = $5; }
 			  |	config-member ',' CFG_PRESERVE '=' integer			{ $$->preserve = $5; }
-			  |	config-member ',' CFG_VERBOSE '=' integer			{ $$->verbose = $5; }
+			  |	config-member ',' CFG_VERBOSE '=' integer			{ $$->verbosity = $5; }
 			  ;
 
 /* directory */

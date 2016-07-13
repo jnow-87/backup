@@ -7,30 +7,55 @@
 
 /* static variables */
 FILE *log::log_file = 0;
-log_level_t log::log_level = NONE;
+log_level_t log::log_level = ((log_level_t)(USER0 | ERROR));
 
 
 /* class definition */
 /**
- * \brief	init log system
+ * \brief	open log file
  *
- * \param	file_name	file name of log file
- * \param	lvl			log level to apply
+ * \param	name	file name of log file
  *
  * \return	0			success
  * 			-1			error (check errno)
  */
-int log::init(char const *file_name, log_level_t lvl){
-	log_level = lvl;
-
-	if(log_file == 0 && file_name != 0){
-		log_file = fopen(file_name, "w");
+int log::set_log_file(char const *name){
+	if(log_file == 0 && name != 0){
+		log_file = fopen(name, "w");
 
 		if(log_file == 0)
 			return -1;
 	}
 
 	return 0;
+}
+
+/**
+ * \brief	set log level
+ *
+ * \param	lvl		desired log level
+ */
+void log::set_log_level(unsigned int verbosity){
+	switch(verbosity){
+	default:
+		// fall through
+
+	case 3:
+		log_level = (log_level_t)(log_level | TODO);
+		// fall through
+
+	case 2:
+		log_level = (log_level_t)(log_level | USER2);
+		// fall through
+
+	case 1:
+		log_level = (log_level_t)(log_level | USER0 | ERROR | USER1);
+		break;
+
+	case 0:
+		log_level = NONE;
+		break;
+	}
 }
 
 /**
@@ -48,28 +73,41 @@ void log::cleanup(){
  *
  * \param	lvl			log level of message
  * \param	msg			actual message (printf-like format string)
- * \param	...			arguments as defined in <msg>
+ * \param	...			variable length argument list
  */
 void log::print(log_level_t lvl, char const *msg, ...){
 	va_list lst;
 
 
-	if(lvl & log_level){
-		va_start(lst, msg);
+	va_start(lst, msg);
+	vprint(lvl, msg, lst);
+	va_end(lst);
+}
 
+
+/**
+ * \brief	write log message to log file
+ *
+ * \param	lvl			log level of message
+ * \param	msg			actual message (printf-like format string)
+ * \param	lst			variable length argument list
+ */
+void log::vprint(log_level_t lvl, char const *msg, va_list lst){
+	va_list cp;
+
+
+	va_copy(cp, lst);
+
+	if(lvl & log_level){
 		if(lvl & ERROR)	vfprintf(stderr, msg, lst);
 		else			vprintf(msg, lst);
-
-		va_end(lst);
 	}
 
 	if(log_file){
 		fprintf(log_file, "[%19.19s]", stime());
 
-		va_start(lst, msg);
-		vfprintf(log_file, msg, lst);
+		vfprintf(log_file, msg, cp);
 		fflush(log_file);
-		va_end(lst);
 	}
 }
 

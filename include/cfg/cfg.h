@@ -18,8 +18,9 @@ public:
 
 	bool archive,
 		 indicate,
-		 preserve,
-		 verbose;
+		 preserve;
+
+	unsigned int verbosity;
 
 	cfg_t *prev,
 		  *next;

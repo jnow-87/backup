@@ -2,18 +2,44 @@
 #define ARGV_H
 
 
+/* macros */
+#define ARGV_PRINT() \
+	USER1( \
+		"%s: %s\n" \
+		"%s: %s\n" \
+		"%s: %s\n" \
+		"%s: %s\n" \
+		"%s: %s\n" \
+		"%s: %d\n" \
+		"%s: %d\n" \
+		"%s: %u\n" \
+		"%s: %s\n" \
+		"%s: %u\n\n" \
+		, \
+		"config-file", argv::config_file, \
+		"config", argv::config, \
+		"out-dir", argv::out_dir, \
+		"tmp-dir", argv::tmp_dir, \
+		"archive", argv::archive, \
+		"compress", argv::compress ? 1 : 0, \
+		"indicate", argv::indicate ? 1 : 0, \
+		"preserve", argv::preserve ? 1 : 0, \
+		"log-file", argv::log_file, \
+		"verbosity", argv::verbosity \
+	);
+
+
 /* class */
 class argv{
 public:
 	/* public functions */
 	static int parse(int argc, char **argv);
-	static void print(void);
 
 	/* public variables */
 	static char *prog_name;
 
 	static char *log_file;
-	static log_level_t log_level;
+	static unsigned int verbosity;
 
 	static char *config_file,
 				*config;
@@ -23,8 +49,7 @@ public:
 
 	static char *archive;
 
-	static bool restore,
-		 		compress,
+	static bool compress,
 		 		indicate,
 		 		preserve;
 

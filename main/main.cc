@@ -29,11 +29,10 @@ int main(int argc, char **argv){
 	if(argv::parse(argc, argv) != 0)
 		return 1;
 
-	argv::print();
+	log::set_log_level(argv::verbosity);
 
-	log::init(argv::log_file, argv::log_level);
+	ARGV_PRINT();
 
-	USER("\n");
 	cfgparse(argv::config_file, &cfg_lst, &dir_lst, &valid);
 
 	if(valid)	USER(FG_GREEN "config file ok\n" RESET_ATTR);
@@ -48,7 +47,7 @@ int main(int argc, char **argv){
 			 "\tarchive: %d\n"
 			 "\tpreserve: %d\n"
 			 "\tindicate: %d\n"
-			 "\tverbose: %d\n"
+			 "\tverbosity: %d\n"
 			 "\n",
 			 cfg->name,
 			 cfg->log_file,
@@ -58,7 +57,7 @@ int main(int argc, char **argv){
 			 cfg->archive,
 			 cfg->preserve,
 			 cfg->indicate,
-			 cfg->verbose
+			 cfg->verbosity
 		);
 
 		list_rm(&cfg_lst, cfg);
