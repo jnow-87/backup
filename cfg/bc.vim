@@ -8,7 +8,9 @@ endif
 let b:current_syntax = "bc"
 
 " keywords
-syntax keyword	bcKeyword			dir config var
+syntax keyword	bcType			dir config var
+
+syntax match	bcMember		"\.\(archive\|out-dir\|tmp-dir\|log-file\|rsync-dir\|verbose\|indicate\|preserve\|file\|name\)"
 
 " {}-block
 syntax region	bcBlock				start="{" end="}" transparent fold
@@ -22,7 +24,8 @@ syntax region	bcComment			matchgroup=bcComment start="/\*" end="\*/"
 
 " colors
 hi def link bcComment				mgreen
-hi def link bcKeyword				mblue
+hi def link bcType					mblue
+hi def link bcMember				mlblue
 hi def link bcString				white
 
 set foldmethod=syntax

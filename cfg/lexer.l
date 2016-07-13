@@ -44,11 +44,12 @@
 "var"							{ return SPEC_VAR; }
 
 	/* commont options */
-".rsync_dir"					{ return CM_RSYNC_DIR; }
+".rsync-dir"					{ return CM_RSYNC_DIR; }
 
 	/* config options */
-".out_dir"						{ return CFG_OUT_DIR; }
-".tmp_dir"						{ return CFG_TMP_DIR; }
+".out-dir"						{ return CFG_OUT_DIR; }
+".tmp-dir"						{ return CFG_TMP_DIR; }
+".log-file"						{ return CFG_LOG_FILE; }
 ".archive"						{ return CFG_ARCHIVE; }
 ".indicate"						{ return CFG_INDICATE; }
 ".preserve"						{ return CFG_PRESERVE; }
