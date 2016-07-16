@@ -8,7 +8,7 @@ cfg_t::cfg_t(){
 	rsync_dir = 0;
 	log_file = 0;
 
-	archive = false;
+	backup = true;
 	indicate = false;
 	preserve = false;
 
@@ -18,5 +18,7 @@ cfg_t::cfg_t(){
 cfg_t::~cfg_t(){
 	delete [] name;
 	delete [] out_dir;
+	delete [] tmp_dir;
 	delete [] rsync_dir;
+	delete [] log_file;
 }

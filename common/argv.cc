@@ -27,13 +27,13 @@
 /* class definition */
 char *argv::config_file = (char*)CONFIG_CONFIG_FILE;
 char *argv::config = (char*)CONFIG_CONFIG;
-char *argv::out_dir = (char*)CONFIG_OUT_DIR;
-char *argv::tmp_dir = (char*)CONFIG_TMP_DIR;
+char *argv::out_dir = 0;
+char *argv::tmp_dir = 0;
 char *argv::archive = 0;
-bool argv::compress = false;
+bool argv::backup = false;
 bool argv::indicate = false;
 bool argv::preserve = false;
-char *argv::log_file = (char*)CONFIG_LOG_FILE;
+char *argv::log_file = 0;
 unsigned int argv::verbosity = 0;
 argv::set_t argv::set = { 0 };
 
@@ -79,14 +79,14 @@ int argv::parse(int argc, char **argv){
 			break;
 
 		case OPT_RESTORE:
-			set.compress = 1;
-			compress = false;
+			set.backup = 1;
+			backup = false;
 			archive = GET_ARG();
 			break;
 
 		case OPT_ARCHIVE:
-			set.compress = 1;
-			compress = true;
+			set.backup = 1;
+			backup = true;
 			break;
 
 		case OPT_INDICATE:

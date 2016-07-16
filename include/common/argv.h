@@ -3,8 +3,8 @@
 
 
 /* macros */
-#define ARGV_PRINT() \
-	USER1( \
+#define ARGV_PRINT(print) \
+	print( \
 		"%s: %s\n" \
 		"%s: %s\n" \
 		"%s: %s\n" \
@@ -21,7 +21,7 @@
 		"out-dir", argv::out_dir, \
 		"tmp-dir", argv::tmp_dir, \
 		"archive", argv::archive, \
-		"compress", argv::compress ? 1 : 0, \
+		"backup", argv::backup ? 1 : 0, \
 		"indicate", argv::indicate ? 1 : 0, \
 		"preserve", argv::preserve ? 1 : 0, \
 		"log-file", argv::log_file, \
@@ -35,7 +35,7 @@ public:
 	/* types */
 	typedef struct{
 		unsigned int verbosity:1,
-					 compress:1,
+					 backup:1,
 					 indicate:1,
 					 preserve:1;
 	} set_t;
@@ -57,7 +57,7 @@ public:
 
 	static char *archive;
 
-	static bool compress,
+	static bool backup,
 		 		indicate,
 		 		preserve;
 
