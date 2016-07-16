@@ -5,6 +5,8 @@
 #include <common/escape.h>
 #include <common/string.h>
 #include <cfg/parser.tab.h>
+#include <unistd.h>
+#include <termios.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -32,6 +34,7 @@ int main(int argc, char **argv){
 		  *cfg;
 	dir_t *dir_lst,
 		  *dit;
+	termios term_s, term_b;
 
 
 	ret = 1;
@@ -71,6 +74,14 @@ int main(int argc, char **argv){
 	list_for_each(dir_lst, dit)
 		DIR_PRINT(dit, USER2);
 
+	/* set terminal paramter */
+	tcgetattr(0, &term_s);
+	tcgetattr(0, &term_b);
+
+	term_s.c_lflag &= ~(ICANON);
+
+	tcsetattr(0, TCSAFLUSH, &term_s);
+
 	/* main functions */
 	if(cfg->backup){
 		// TODO backup
@@ -78,6 +89,9 @@ int main(int argc, char **argv){
 	else{
 		// TODO restore
 	}
+
+	/* reset terminal paramter */
+	tcsetattr(0, TCSAFLUSH, &term_b);
 
 	ret = 0;
 

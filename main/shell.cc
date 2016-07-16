@@ -160,6 +160,20 @@ void rmdir(char *dir, bool indicate){
 	USEROK();
 }
 
+bool yesno(char *text){
+	char c;
+
+
+	USER("%s [y/N]\n", text);
+
+	while(fread(&c, 1, 1, stdin) != 1)
+		usleep(100000);
+
+	if(c == 'y' || c == 'Y')
+		return true;
+	return false;
+}
+
 
 /* local functions */
 int shell(char const *cmd, ...){
