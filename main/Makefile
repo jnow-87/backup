@@ -1,6 +1,6 @@
 bin-y := backup
 
-backup-y := main.o common/ cfg/
+backup-y := main.o shell.o common/ cfg/
 
 
 ## additional dependencies for generated headers
