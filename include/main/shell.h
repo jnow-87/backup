@@ -12,8 +12,8 @@ typedef enum{
 
 /* prototypes */
 void copy(char *src_dir, char *src_file, char *dst, cp_cmd_t cmd, bool indicate);
-void unlink(char *dir, char *file);
-void rmdir(char *dir);
+void unlink(char *dir, char *file, bool indicate);
+void rmdir(char *dir, bool indicate);
 
 
 #endif // SHELL_H

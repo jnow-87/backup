@@ -1,13 +1,11 @@
 #include <main/shell.h>
-#include <common/log.h>
-#include <common/escape.h>
+#include <main/ui.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <stdarg.h>
 #include <errno.h>
 #include <string.h>
 #include <string>
@@ -21,18 +19,6 @@ using namespace std;
 
 #define SHELL(cmd, ...) \
 	shell(cmd " 2>&1", ##__VA_ARGS__)
-
-#define USERIDICATE() \
-	USER(FG_YELLOW "[INDICATE]" RESET_ATTR "\n");
-
-#define USEROK() \
-	USER(FG_GREEN "[OK]" RESET_ATTR "\n")
-
-#define USERERR(msg, ...){ \
-	USER(FG_RED "[ERR]"); \
-	USER1(" (" msg ")", ##__VA_ARGS__); \
-	USER(RESET_ATTR "\n"); \
-}
 
 #define ERRSTR(fmt, ...) \
 	snprintf(errstr, MAXLEN, fmt, ##__VA_ARGS__)
@@ -92,7 +78,7 @@ void copy(char *src_dir, char *src_file, char *dst, cp_cmd_t cmd, bool indicate)
 	/* perform copy */
 	// return if only indicating action
 	if(indicate){
-		USERIDICATE();
+		USERINDICATE();
 		goto clean_1;
 	}
 
@@ -117,7 +103,7 @@ clean_1:
 clean_0:;
 }
 
-void unlink(char *dir, char *file){
+void unlink(char *dir, char *file, bool indicate){
 	int fd;
 
 
@@ -125,31 +111,44 @@ void unlink(char *dir, char *file){
 
 	if(dir == 0 || file == 0){
 		USERERR("null string argument");
-		return;
+		goto clean_0;
 	}
 
 	fd = open(dir, O_RDONLY);
 
 	if(fd == -1){
 		USERERR("%s: %s", dir, strerror(errno));
-		return;
+		goto clean_0;
+	}
+
+	if(indicate){
+		USERINDICATE();
+		goto clean_1;
 	}
 
 	if(unlinkat(fd, file, 0) != 0){
 		USERERR("%s/%s: %s", dir, file, strerror(errno));
-		return;
+		goto clean_1;
 	}
 
+	USEROK();
+
+clean_1:
 	close(fd);
 
-	USEROK();
+clean_0:;
 }
 
-void rmdir(char *dir){
+void rmdir(char *dir, bool indicate){
 	USER("remove %s ", dir);
 
 	if(dir == 0){
 		USERERR("null string argument");
+		return;
+	}
+
+	if(indicate){
+		USERINDICATE();
 		return;
 	}
 
