@@ -20,6 +20,18 @@ config TMP_DIR
 	string "directory for temporary files (default)"
 	default "/tmp/backup"
 
+config CP_ARGS
+	string "cp command arguments"
+	default "-rau"
+
+config RSYNC_ARGS
+	string "rsync command arguments"
+	default "-rauAXH --delete"
+
+config MV_ARGS
+	string "mv command arguments"
+	default ""
+
 choice
 	prompt "Build type"
 

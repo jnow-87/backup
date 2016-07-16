@@ -39,11 +39,11 @@ using namespace std;
 
 
 /* static variables */
-static char const *cmd_name[] = {
+static char const *cmd_str[] = {
 	"",
-	"cp",
-	"rsync",
-	"mv"
+	"cp " CONFIG_CP_ARGS,
+	"rsync " CONFIG_RSYNC_ARGS,
+	"mv " CONFIG_MV_ARGS
 };
 
 static char const *cmd_txt[] = {
@@ -103,7 +103,7 @@ void copy(char *src_dir, char *src_file, char *dst, cp_cmd_t cmd, bool indicate)
 	}
 
 	// issue command
-	if(SHELL("%s %s/%s %s", cmd_name[cmd], src_dir, src_file, dst) != 0){
+	if(SHELL("%s %s/%s %s", cmd_str[cmd], src_dir, src_file, dst) != 0){
 		USERERR("%s", errstr);
 		goto clean_1;
 	}
