@@ -5,26 +5,26 @@
 /* macros */
 #define ARGV_PRINT(print) \
 	print( \
-		"%s: %s\n" \
-		"%s: %s\n" \
-		"%s: %s\n" \
-		"%s: %s\n" \
-		"%s: %s\n" \
-		"%s: %d\n" \
-		"%s: %d\n" \
-		"%s: %u\n" \
-		"%s: %s\n" \
-		"%s: %u\n\n" \
+		"\t%s: %s\n" \
+		"\t%s: %s\n" \
+		"\t%s: %s\n" \
+		"\t%s: %s\n" \
+		"\t%s: %s\n" \
+		"\t%s: %s\n" \
+		"\t%s: %d\n" \
+		"\t%s: %d\n" \
+		"\t%s: %u\n" \
+		"\t%s: %u\n\n" \
 		, \
 		"config-file", argv::config_file, \
 		"config", argv::config, \
-		"out-dir", argv::out_dir, \
-		"tmp-dir", argv::tmp_dir, \
-		"archive", argv::archive, \
-		"backup", argv::backup ? 1 : 0, \
-		"indicate", argv::indicate ? 1 : 0, \
-		"preserve", argv::preserve ? 1 : 0, \
-		"log-file", argv::log_file, \
+		"log-file", argv::log_file ? argv::log_file : "-", \
+		"out-dir", argv::out_dir ? argv::out_dir : "-", \
+		"tmp-dir", argv::tmp_dir ? argv::tmp_dir : "-", \
+		"archive", argv::archive ? argv::archive : "-", \
+		"backup", argv::backup, \
+		"indicate", argv::indicate, \
+		"preserve", argv::preserve, \
 		"verbosity", argv::verbosity \
 	);
 

@@ -10,10 +10,11 @@
 	file_t *file; \
 	\
 	\
-	print("directory: %s\n", dir->path); \
+	print("\t%s\n", dir->path); \
 	\
 	list_for_each(dir->file_lst, file) \
-		print("\tfile: %s %s\n", file->name, file->rsync_dir); \
+		if(file->rsync_dir)	print("\t\tfile: %s (rsync-dir: %s)\n", file->name, file->rsync_dir); \
+		else				print("\t\tfile: %s\n", file->name); \
 	\
 	print("\n"); \
 }

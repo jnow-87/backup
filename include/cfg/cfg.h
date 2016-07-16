@@ -3,22 +3,22 @@
 
 
 /* macros */
-#define CFG_PRINT(cfg, print){ \
-	print("config: %s\n" \
-		  "\tlogfile: %s\n" \
-		  "\toutdir: %s\n" \
-		  "\ttmpdir: %s\n" \
-		  "\trsyncdir: %s\n" \
-		  "\tbackup: %d\n" \
-		  "\tpreserve: %d\n" \
-		  "\tindicate: %d\n" \
-		  "\tverbosity: %u\n" \
+#define CFG_PRINT(print, cfg){ \
+	print("\t%s\n" \
+		  "\t\tlogfile: %s\n" \
+		  "\t\toutdir: %s\n" \
+		  "\t\ttmpdir: %s\n" \
+		  "\t\trsyncdir: %s\n" \
+		  "\t\tbackup: %d\n" \
+		  "\t\tpreserve: %d\n" \
+		  "\t\tindicate: %d\n" \
+		  "\t\tverbosity: %u\n" \
 		  "\n", \
 		  cfg->name, \
-		  cfg->log_file, \
-		  cfg->out_dir, \
-		  cfg->tmp_dir, \
-		  cfg->rsync_dir, \
+		  cfg->log_file ? cfg->log_file : "-", \
+		  cfg->out_dir ? cfg->out_dir : "-", \
+		  cfg->tmp_dir ? cfg->tmp_dir : "-", \
+		  cfg->rsync_dir ? cfg->rsync_dir : "-", \
 		  cfg->backup, \
 		  cfg->preserve, \
 		  cfg->indicate, \

@@ -16,7 +16,6 @@ static cfg_t *cfg_apply(cfg_t *lst);
 /**
  * TODO
  * 	- main functionality
- * 		- apply config and argv
  * 		- rsync_dir is relative to out_dir or absolute
  * 		- options: handle_normale handle_rsync
  * 		- handle "special" directories like "homes"
@@ -58,13 +57,17 @@ int main(int argc, char **argv){
 	log::set_log_level(cfg->verbosity);
 
 	/* print command line and config */
+	USER(FG_VIOLETT "selected configuration" RESET_ATTR "\n");
+	CFG_PRINT(USER, cfg);
+
+	USER2(FG_VIOLETT "parsed command line arguments" RESET_ATTR "\n");
 	ARGV_PRINT(USER2);
 
-	CFG_PRINT(cfg, USER);
-
+	USER2(FG_VIOLETT "parsed configurations" RESET_ATTR "\n");
 	list_for_each(cfg_lst, cit)
-		CFG_PRINT(cit, USER2);
+		CFG_PRINT(USER2, cit);
 
+	USER2(FG_VIOLETT "parsed directories" RESET_ATTR "\n");
 	list_for_each(dir_lst, dit)
 		DIR_PRINT(dit, USER2);
 
