@@ -53,7 +53,7 @@ void log::set_log_level(unsigned int verbosity){
 		break;
 
 	case 0:
-		log_level = NONE;
+		log_level = (log_level_t)(USER0 | ERROR);
 		break;
 	}
 }
@@ -104,7 +104,7 @@ void log::vprint(log_level_t lvl, char const *msg, va_list lst){
 	}
 
 	if(log_file){
-		fprintf(log_file, "[%19.19s]", stime());
+		fprintf(log_file, "[%19.19s]\t", stime());
 
 		vfprintf(log_file, msg, cp);
 		fflush(log_file);
