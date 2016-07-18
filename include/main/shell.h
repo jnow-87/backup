@@ -11,9 +11,10 @@ typedef enum{
 
 
 /* prototypes */
-void copy(char *src_dir, char *src_file, char *dst, cp_cmd_t cmd, bool indicate);
-void unlink(char *dir, char *file, bool indicate);
-void rmdir(char *dir, bool indicate);
+int copy(char *src_dir, char *src_file, char *dst_base, char *dst_dir, cp_cmd_t cmd, bool indicate);
+int unlink(char *dir, char *file, bool indicate);
+int rmdir(char *dir, bool indicate);
+int mkdir(char *base, char *dir, bool indicate);
 
 bool yesno(char *text);
 

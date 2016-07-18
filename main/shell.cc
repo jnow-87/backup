@@ -1,5 +1,6 @@
 #include <main/shell.h>
 #include <main/ui.h>
+#include <common/string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -16,6 +17,9 @@ using namespace std;
 
 /* macros */
 #define MAXLEN	512
+
+#define PATHCONCAT(base, dir) \
+	(((dir) != 0 && (dir)[0] == '/') ? "" : STRNULL(base)), STRNULL(dir)
 
 #define SHELL(cmd, ...) \
 	shell(cmd " 2>&1", ##__VA_ARGS__)
@@ -47,18 +51,20 @@ int shell(char const *cmd, ...);
 
 
 /* global functions */
-void copy(char *src_dir, char *src_file, char *dst, cp_cmd_t cmd, bool indicate){
+int copy(char *src_dir, char *src_file, char *dst_base, char *dst_dir, cp_cmd_t cmd, bool indicate){
 	int fd;
+	int ret;
 	struct stat fs;
 
 
-	USER("%s %s/%s -> %s ", cmd_txt[cmd], src_dir, src_file, dst);
+	ret = -1;
+	USER("%s %s%s -> %s%s ", cmd_txt[cmd], STRNULL(src_dir), STRNULL(src_file), PATHCONCAT(dst_base, dst_dir));
 
-	/* check input */
-	// check pointer
-	if(src_dir == 0 || src_file == 0 || dst == 0){
+	/* check arguments */
+	// pointer
+	if(src_dir == 0 || src_file == 0 || dst_dir == 0 || (dst_dir[0] != '/' && dst_base == 0)){
 		USERERR("null string argument");
-		goto clean_0;
+		return -1;
 	}
 
 	// check src directory
@@ -66,103 +72,147 @@ void copy(char *src_dir, char *src_file, char *dst, cp_cmd_t cmd, bool indicate)
 
 	if(fd == -1){
 		USERERR("%s: %s", src_dir, strerror(errno));
-		goto clean_1;
+		goto clean;
 	}
 
 	// check src file
 	if(fstatat(fd, src_file, &fs, 0) != 0){
-		USERERR("%s/%s: %s", src_dir, src_file, strerror(errno));
-		goto clean_1;
+		USERERR("%s%s: %s", src_dir, src_file, strerror(errno));
+		goto clean;
 	}
 
 	/* perform copy */
 	// return if only indicating action
 	if(indicate){
 		USERINDICATE();
-		goto clean_1;
+		ret = 0;
+
+		goto clean;
 	}
 
 	// create target directory
-	if(mkdir(dst, 0755) != 0 && errno != EEXIST){
-		USERERR("mkdir %s: %s", dst, strerror(errno));
-		goto clean_1;
+	if(SHELL("mkdir -p %s%s", PATHCONCAT(dst_base, dst_dir)) != 0){
+		USERERR("mkdir %s%s: %s", PATHCONCAT(dst_base, dst_dir), strerror(errno));
+		goto clean;
 	}
 
 	// issue command
-	if(SHELL("%s %s/%s %s", cmd_str[cmd], src_dir, src_file, dst) != 0){
+	if(SHELL("%s %s%s %s%s", cmd_str[cmd], src_dir, src_file, PATHCONCAT(dst_base, dst_dir)) != 0){
 		USERERR("%s", errstr);
-		goto clean_1;
+		goto clean;
 	}
 
 	USEROK();
+	ret = 0;
 
 	/* cleanup */
-clean_1:
+clean:
 	close(fd);
 
-clean_0:;
+	return ret;
 }
 
-void unlink(char *dir, char *file, bool indicate){
-	int fd;
+int unlink(char *dir, char *file, bool indicate){
+	int fd,
+		ret;
 
 
-	USER("remove %s/%s ", dir, file);
+	ret = -1;
+	USER("remove %s%s ", STRNULL(dir), STRNULL(file));
 
+	/* check arguments */
+	// pointer
 	if(dir == 0 || file == 0){
 		USERERR("null string argument");
-		goto clean_0;
+		return -1;
 	}
 
+	// directory
 	fd = open(dir, O_RDONLY);
 
 	if(fd == -1){
 		USERERR("%s: %s", dir, strerror(errno));
-		goto clean_0;
+		return -1;
 	}
 
+	/* performa unlink */
 	if(indicate){
 		USERINDICATE();
-		goto clean_1;
+		ret = 0;
+
+		goto clean;
 	}
 
 	if(unlinkat(fd, file, 0) != 0){
-		USERERR("%s/%s: %s", dir, file, strerror(errno));
-		goto clean_1;
+		USERERR("%s%s: %s", dir, file, strerror(errno));
+		goto clean;
 	}
 
 	USEROK();
+	ret = 0;
 
-clean_1:
+clean:
 	close(fd);
 
-clean_0:;
+	return ret;
 }
 
-void rmdir(char *dir, bool indicate){
-	USER("remove %s ", dir);
+int rmdir(char *dir, bool indicate){
+	USER("remove %s ", STRNULL(dir));
 
+	/* check arguments */
 	if(dir == 0){
 		USERERR("null string argument");
-		return;
+		return -1;
 	}
 
+	/* perform removal */
 	if(indicate){
 		USERINDICATE();
-		return;
+		return 0;
 	}
 
-	if(SHELL("rm -r %s", dir) != 0){
-		USERERR("%s: %s", dir, strerror(errno));
-		return;
+	if(SHELL("rm -fr %s", dir) != 0){
+		USERERR("%s: %s", dir, errstr);
+		return -1;
 	}
 
 	USEROK();
+
+	return 0;
+}
+
+int mkdir(char *base, char *dir, bool indicate){
+	USER("mkdir %s%s ", PATHCONCAT(base, dir));
+
+	/* check arguments */
+	if(base == 0 && dir == 0){
+		USERERR("null string argument");
+		return -1;
+	}
+
+	/* perform mkdir */
+	if(indicate){
+		USERINDICATE();
+		return 0;
+	}
+
+	if(SHELL("mkdir -p %s%s", PATHCONCAT(base, dir)) != 0){
+		USERERR("mkdir %s%s: %s", PATHCONCAT(base, dir), strerror(errno));
+		return -1;
+	}
+
+	USEROK();
+
+	return 0;
 }
 
 bool yesno(char *text){
 	char c;
 
+
+	if(text == 0)
+		return false;
 
 	USER("%s [y/N]\n", text);
 
