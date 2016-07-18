@@ -244,6 +244,8 @@ int shell(char const *cmd, ...){
 		return -1;
 	}
 
+	LOGONLY("issue cmd: \"%s\"\n", buf);
+
 	fp = popen(buf, "r");
 
 	if(fp == 0)
