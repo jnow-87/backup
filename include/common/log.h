@@ -18,6 +18,7 @@ enum log_level_t{
 	USER1 = 0x4,
 	USER2 = 0x8,
 	TODO = 0x10,
+	LOGONLY = 0x20,
 };
 
 
@@ -32,6 +33,8 @@ enum log_level_t{
 #define VUSER1(msg, lst)	log::vprint(USER1, msg, lst)
 #define USER2(msg, ...)		log::print(USER2, msg, ##__VA_ARGS__)
 #define VUSER2(msg, lst)	log::vprint(USER2, msg, lst)
+#define LOGONLY(msg, ...)	log::print(LOGONLY, msg, ##__VA_ARGS__)
+#define VLOGONLY(msg, lst)	log::vprint(LOGONLY, msg, lst)
 
 
 /* class */
