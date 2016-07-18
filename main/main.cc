@@ -118,11 +118,11 @@ cfg_t *cfg_apply(cfg_t *lst){
 #define REALLOC(s, default){ \
 	if(argv::s){ \
 		delete [] cfg->s; \
-		cfg->s = stralloc(argv::s, strlen(argv::s)); \
+		cfg->s = DIRALLOC(argv::s, strlen(argv::s)); \
 	} \
 	\
 	if(cfg->s == 0) \
-		cfg->s = stralloc((char*)default, strlen(default)); \
+		cfg->s = DIRALLOC((char*)default, strlen(default)); \
 }
 
 	cfg_t *cfg;
@@ -138,6 +138,9 @@ cfg_t *cfg_apply(cfg_t *lst){
 	REALLOC(out_dir, CONFIG_OUT_DIR);
 	REALLOC(tmp_dir, CONFIG_TMP_DIR);
 	REALLOC(log_file, CONFIG_LOG_FILE);
+
+	if(cfg->log_file[strlen(cfg->log_file) - 1] == '/')
+		cfg->log_file[strlen(cfg->log_file) - 1] = 0;
 
 	if(argv::set.backup)	cfg->backup = argv::backup;
 	if(argv::set.indicate)	cfg->indicate = argv::indicate;
