@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include <time.h>
+#include <string.h>
 
 
 /* static variables */
@@ -96,6 +97,9 @@ void log::vprint(log_level_t lvl, char const *msg, va_list lst){
 	va_list cp;
 
 
+	if(*msg == 0)
+		return;
+
 	va_copy(cp, lst);
 
 	if(lvl & log_level){
@@ -107,6 +111,10 @@ void log::vprint(log_level_t lvl, char const *msg, va_list lst){
 		fprintf(log_file, "[%19.19s]\t", stime());
 
 		vfprintf(log_file, msg, cp);
+
+		if(msg[strlen(msg) - 1] != '\n')
+			fprintf(log_file, "\n");
+
 		fflush(log_file);
 	}
 }
@@ -125,7 +133,7 @@ char *log::stime(){
 
 	t = time(0);
 	ts = localtime(&t);
-	strftime(s, 80, "%d.%m.%Y %H:%M:%S", ts);
+	strftime(s, 80, "%Y.%m.%d %H:%M:%S", ts);
 
 	return s;
 }
