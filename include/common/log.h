@@ -23,15 +23,15 @@ enum log_level_t{
 
 /* macros */
 #define ERROR(msg, ...)		log::print(ERROR, msg, ##__VA_ARGS__)
-#define VERROR(msg, lst)	log::print(ERROR, msg, lst)
+#define VERROR(msg, lst)	log::vprint(ERROR, msg, lst)
 #define TODO(msg, ...)		log::print(TODO, "[TBD] %15.15s:%-5d %15.15s(): " msg, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
-#define VTODO(msg, lst)		log::print(TODO, "[TBD] %15.15s:%-5d %15.15s(): " msg, __FILE__, __LINE__, __FUNCTION__, lst)
+#define VTODO(msg, lst)		log::vprint(TODO, "[TBD] %15.15s:%-5d %15.15s(): " msg, __FILE__, __LINE__, __FUNCTION__, lst)
 #define USER(msg, ...)		log::print(USER0, msg, ##__VA_ARGS__)
-#define VUSER(msg, lst)		log::print(USER0, msg, lst)
+#define VUSER(msg, lst)		log::vprint(USER0, msg, lst)
 #define USER1(msg, ...)		log::print(USER1, msg, ##__VA_ARGS__)
-#define VUSER1(msg, lst)	log::print(USER1, msg, lst)
+#define VUSER1(msg, lst)	log::vprint(USER1, msg, lst)
 #define USER2(msg, ...)		log::print(USER2, msg, ##__VA_ARGS__)
-#define VUSER2(msg, lst)	log::print(USER2, msg, lst)
+#define VUSER2(msg, lst)	log::vprint(USER2, msg, lst)
 
 
 /* class */
