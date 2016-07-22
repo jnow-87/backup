@@ -9,7 +9,7 @@
 		  "\t\toutdir: %s\n" \
 		  "\t\ttmpdir: %s\n" \
 		  "\t\trsyncdir: %s\n" \
-		  "\t\tbackup: %d\n" \
+		  "\t\tarchive: %d\n" \
 		  "\t\tpreserve: %d\n" \
 		  "\t\tindicate: %d\n" \
 		  "\t\tverbosity: %u\n" \
@@ -19,7 +19,7 @@
 		  cfg->out_dir ? cfg->out_dir : "-", \
 		  cfg->tmp_dir ? cfg->tmp_dir : "-", \
 		  cfg->rsync_dir ? cfg->rsync_dir : "-", \
-		  cfg->backup, \
+		  cfg->archive, \
 		  cfg->preserve, \
 		  cfg->indicate, \
 		  cfg->verbosity \
@@ -41,7 +41,7 @@ public:
 
 	char *log_file;
 
-	bool backup,
+	bool archive,
 		 indicate,
 		 preserve;
 

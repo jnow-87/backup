@@ -211,7 +211,7 @@ config-member :	%empty												{ $$ = new cfg_t(); cfgunput(','); }
 			  |	config-member ',' CFG_TMP_DIR '=' string			{ $$->tmp_dir = DIRALLOC((char*)($5->c_str()), $5->length()); delete $5; }
 			  |	config-member ',' CFG_LOG_FILE '=' string			{ $$->log_file = stralloc((char*)($5->c_str()), $5->length()); delete $5; }
 			  |	config-member ',' CM_RSYNC_DIR '=' string			{ $$->rsync_dir = DIRALLOC((char*)($5->c_str()), $5->length()); delete $5; }
-			  |	config-member ',' CFG_ARCHIVE '=' integer			{ $$->backup = $5; }
+			  |	config-member ',' CFG_ARCHIVE '=' integer			{ $$->archive = $5; }
 			  |	config-member ',' CFG_INDICATE '=' integer			{ $$->indicate = $5; }
 			  |	config-member ',' CFG_PRESERVE '=' integer			{ $$->preserve = $5; }
 			  |	config-member ',' CFG_VERBOSE '=' integer			{ $$->verbosity = $5; }

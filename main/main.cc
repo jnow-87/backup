@@ -83,11 +83,11 @@ int main(int argc, char **argv){
 	tcsetattr(0, TCSAFLUSH, &term_s);
 
 	/* main functions */
-	if(cfg->backup){
-		// TODO backup
+	if(argv::restore){
+		// TODO restore
 	}
 	else{
-		// TODO restore
+		// TODO backup
 	}
 
 	/* reset terminal paramter */
@@ -142,7 +142,7 @@ cfg_t *cfg_apply(cfg_t *lst){
 	if(cfg->log_file[strlen(cfg->log_file) - 1] == '/')
 		cfg->log_file[strlen(cfg->log_file) - 1] = 0;
 
-	if(argv::set.backup)	cfg->backup = argv::backup;
+	if(argv::archive != 0)	cfg->archive = true;
 	if(argv::set.indicate)	cfg->indicate = argv::indicate;
 	if(argv::set.preserve)	cfg->preserve = argv::preserve;
 	if(argv::set.verbosity)	cfg->verbosity = argv::verbosity;

@@ -30,7 +30,7 @@ char *argv::config = (char*)CONFIG_CONFIG;
 char *argv::out_dir = 0;
 char *argv::tmp_dir = 0;
 char *argv::archive = 0;
-bool argv::backup = false;
+bool argv::restore = false;
 bool argv::indicate = false;
 bool argv::preserve = false;
 char *argv::log_file = 0;
@@ -79,14 +79,12 @@ int argv::parse(int argc, char **argv){
 			break;
 
 		case OPT_RESTORE:
-			set.backup = 1;
-			backup = false;
+			restore = true;
 			archive = GET_ARG();
 			break;
 
 		case OPT_ARCHIVE:
-			set.backup = 1;
-			backup = true;
+			archive = (char*)"";
 			break;
 
 		case OPT_INDICATE:

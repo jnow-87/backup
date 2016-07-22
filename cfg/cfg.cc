@@ -8,7 +8,7 @@ cfg_t::cfg_t(){
 	rsync_dir = 0;
 	log_file = 0;
 
-	backup = true;
+	archive= false;
 	indicate = false;
 	preserve = false;
 

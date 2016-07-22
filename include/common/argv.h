@@ -22,7 +22,7 @@
 		"out-dir", argv::out_dir ? argv::out_dir : "-", \
 		"tmp-dir", argv::tmp_dir ? argv::tmp_dir : "-", \
 		"archive", argv::archive ? argv::archive : "-", \
-		"backup", argv::backup, \
+		"restore", argv::restore, \
 		"indicate", argv::indicate, \
 		"preserve", argv::preserve, \
 		"verbosity", argv::verbosity \
@@ -35,7 +35,6 @@ public:
 	/* types */
 	typedef struct{
 		unsigned int verbosity:1,
-					 backup:1,
 					 indicate:1,
 					 preserve:1;
 	} set_t;
@@ -57,7 +56,7 @@ public:
 
 	static char *archive;
 
-	static bool backup,
+	static bool restore,
 		 		indicate,
 		 		preserve;
 
