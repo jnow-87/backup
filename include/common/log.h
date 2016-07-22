@@ -50,7 +50,7 @@ public:
 	static void vprint(log_level_t lvl, char const *msg, va_list lst);
 
 	/* get current time/date */
-	static char *stime();
+	static char *stime(char *separator);
 
 private:
 	static FILE *log_file;			// file pointer to log file
