@@ -20,5 +20,19 @@
 	USER(RESET_ATTR "\n"); \
 }
 
+#define USERHEAD(msg, ...) \
+	USER("\n" FG_VIOLETT msg RESET_ATTR "\n", ##__VA_ARGS__)
+
+#define USER1HEAD(msg, ...) \
+	USER1("\n" FG_VIOLETT msg RESET_ATTR "\n", ##__VA_ARGS__)
+
+#define USER2HEAD(msg, ...) \
+	USER2("\n" FG_VIOLETT msg RESET_ATTR "\n", ##__VA_ARGS__)
+
+
+/* prototypes */
+bool yesno(char const *text);
+
+
 
 #endif // UI_H

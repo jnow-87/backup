@@ -205,21 +205,29 @@ int mkdir(char const *base, char const *dir, bool indicate){
 	return 0;
 }
 
-bool yesno(char *text){
-	char c;
+int tar(char const *opt, char const *src_dir, char const *dst_dir, char const *archive, bool indicate){
+	USER("tar %s %s%s %s ", STRNULL(opt), PATHCONCAT(dst_dir, archive), STRNULL(src_dir));
 
+	/* check arguments */
+	if(opt == 0 || src_dir == 0 || dst_dir == 0 || archive == 0){
+		USERERR("null string argument");
+		return -1;
+	}
 
-	if(text == 0)
-		return false;
+	/* perform tar */
+	if(indicate){
+		USERINDICATE();
+		return 0;
+	}
 
-	USER("%s [y/N]\n", text);
+	if(SHELL("tar %s %s%s -C %s .", STRNULL(opt), PATHCONCAT(dst_dir, archive), STRNULL(src_dir)) != 0){
+		USERERR("%s", errstr);
+		return -1;
+	}
 
-	while(fread(&c, 1, 1, stdin) != 1)
-		usleep(100000);
+	USEROK();
 
-	if(c == 'y' || c == 'Y')
-		return true;
-	return false;
+	return 0;
 }
 
 

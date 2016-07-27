@@ -7,8 +7,8 @@
 	print("\t%s\n" \
 		  "\t\tlogfile: %s\n" \
 		  "\t\toutdir: %s\n" \
-		  "\t\ttmpdir: %s\n" \
 		  "\t\trsyncdir: %s\n" \
+		  "\t\ttmpdir: %s\n" \
 		  "\t\tarchive: %d\n" \
 		  "\t\tpreserve: %d\n" \
 		  "\t\tindicate: %d\n" \
@@ -17,8 +17,8 @@
 		  cfg->name, \
 		  cfg->log_file ? cfg->log_file : "-", \
 		  cfg->out_dir ? cfg->out_dir : "-", \
-		  cfg->tmp_dir ? cfg->tmp_dir : "-", \
 		  cfg->rsync_dir ? cfg->rsync_dir : "-", \
+		  cfg->tmp_dir ? cfg->tmp_dir : "-", \
 		  cfg->archive, \
 		  cfg->preserve, \
 		  cfg->indicate, \

@@ -21,6 +21,7 @@
 
 /* prototypes */
 char *stralloc(char *s, unsigned int len);
+char *dirname(char const *base, char const *path);
 
 
 #endif // STRING_H
