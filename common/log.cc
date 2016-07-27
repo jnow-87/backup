@@ -95,6 +95,7 @@ void log::print(log_level_t lvl, char const *msg, ...){
  */
 void log::vprint(log_level_t lvl, char const *msg, va_list lst){
 	va_list cp;
+	FILE *fp;
 
 
 	if(*msg == 0)
@@ -111,7 +112,7 @@ void log::vprint(log_level_t lvl, char const *msg, va_list lst){
 	}
 
 	if(log_file){
-		fprintf(log_file, "[%19.19s]\t", stime(" @ "));
+		fprintf(log_file, "[%19.19s]\t", stime());
 
 		vfprintf(log_file, msg, cp);
 
@@ -128,18 +129,15 @@ void log::vprint(log_level_t lvl, char const *msg, va_list lst){
  * \return	pointer to time/date string - string is allocated statically and
  * 			hence must not be freed
  */
-char *log::stime(char *separator){
+char *log::stime(void){
 	static char s[80];
-	size_t len;
 	time_t t;
 	tm *ts;
 
 
 	t = time(0);
 	ts = localtime(&t);
-	len = strftime(s, 80, "%Y.%m.%d", ts);
-	len += snprintf(s + len, 80 - len, separator);
-	strftime(s + len, 80 - len, "%H:%M:%S", ts);
+	strftime(s, 80, "%Y.%m.%d@%H.%M.%S", ts);
 
 	return s;
 }
