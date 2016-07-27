@@ -51,14 +51,12 @@ int shell(char const *cmd, ...);
 
 
 /* global functions */
-int copy(char *src_dir, char *src_file, char *dst_base, char *dst_dir, cp_cmd_t cmd, bool indicate){
+int copy(char const *src_dir, char const *src_file, char const *dst_base, char const *dst_dir, cp_cmd_t cmd, bool indicate){
 	int fd;
-	int ret;
 	struct stat fs;
 
 
-	ret = -1;
-	USER("%s %s%s -> %s%s ", cmd_txt[cmd], STRNULL(src_dir), STRNULL(src_file), PATHCONCAT(dst_base, dst_dir));
+	USER("%s %s%s -> %s%s ", cmd_txt[cmd], PATHCONCAT(src_dir, src_file), PATHCONCAT(dst_base, dst_dir));
 
 	/* check arguments */
 	// pointer
@@ -68,51 +66,51 @@ int copy(char *src_dir, char *src_file, char *dst_base, char *dst_dir, cp_cmd_t 
 	}
 
 	// check src directory
-	fd = open(src_dir, O_RDONLY);
+	if(src_file[0] == '/')		fd = open("/", O_RDONLY);
+	else if(src_dir[0] == 0)	fd = open("./", O_RDONLY);
+	else						fd = open(src_dir, O_RDONLY);
 
 	if(fd == -1){
 		USERERR("%s: %s", src_dir, strerror(errno));
-		goto clean;
+		return -1;
 	}
 
-	// check src file
-	if(fstatat(fd, src_file, &fs, 0) != 0){
-		USERERR("%s%s: %s", src_dir, src_file, strerror(errno));
-		goto clean;
+	// check src file, if it doesn't end on '*'
+	if(src_file[strlen(src_file) - 1] != '*'){
+		if(fstatat(fd, src_file, &fs, 0) != 0){
+			USERERR("%s%s: %s", PATHCONCAT(src_dir, src_file), strerror(errno));
+			close(fd);
+			return -1;
+		}
 	}
+
+	close(fd);
 
 	/* perform copy */
 	// return if only indicating action
 	if(indicate){
 		USERINDICATE();
-		ret = 0;
-
-		goto clean;
+		return 0;
 	}
 
 	// create target directory
 	if(SHELL("mkdir -p %s%s", PATHCONCAT(dst_base, dst_dir)) != 0){
-		USERERR("mkdir %s%s: %s", PATHCONCAT(dst_base, dst_dir), strerror(errno));
-		goto clean;
+		USERERR("%s", errstr);
+		return -1;
 	}
 
 	// issue command
-	if(SHELL("%s %s%s %s%s", cmd_str[cmd], src_dir, src_file, PATHCONCAT(dst_base, dst_dir)) != 0){
+	if(SHELL("%s %s%s %s%s", cmd_str[cmd], PATHCONCAT(src_dir, src_file), PATHCONCAT(dst_base, dst_dir)) != 0){
 		USERERR("%s", errstr);
-		goto clean;
+		return -1;
 	}
 
 	USEROK();
-	ret = 0;
 
-	/* cleanup */
-clean:
-	close(fd);
-
-	return ret;
+	return 0;
 }
 
-int unlink(char *dir, char *file, bool indicate){
+int unlink(char const *dir, char const *file, bool indicate){
 	int fd,
 		ret;
 
@@ -157,7 +155,7 @@ clean:
 	return ret;
 }
 
-int rmdir(char *dir, bool indicate){
+int rmdir(char const *dir, bool indicate){
 	USER("remove %s ", STRNULL(dir));
 
 	/* check arguments */
@@ -173,7 +171,7 @@ int rmdir(char *dir, bool indicate){
 	}
 
 	if(SHELL("rm -fr %s", dir) != 0){
-		USERERR("%s: %s", dir, errstr);
+		USERERR("%s", errstr);
 		return -1;
 	}
 
@@ -182,7 +180,7 @@ int rmdir(char *dir, bool indicate){
 	return 0;
 }
 
-int mkdir(char *base, char *dir, bool indicate){
+int mkdir(char const *base, char const *dir, bool indicate){
 	USER("mkdir %s%s ", PATHCONCAT(base, dir));
 
 	/* check arguments */
@@ -198,7 +196,7 @@ int mkdir(char *base, char *dir, bool indicate){
 	}
 
 	if(SHELL("mkdir -p %s%s", PATHCONCAT(base, dir)) != 0){
-		USERERR("mkdir %s%s: %s", PATHCONCAT(base, dir), strerror(errno));
+		USERERR("%s", errstr);
 		return -1;
 	}
 
@@ -274,7 +272,7 @@ int shell(char const *cmd, ...){
 			++i;
 		}
 
-		ERRSTR("shell cmd failed: %s", buf);
+		ERRSTR("%s", buf);
 		return -(WEXITSTATUS(s));
 	}
 

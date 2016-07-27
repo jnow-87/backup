@@ -11,12 +11,12 @@ typedef enum{
 
 
 /* prototypes */
-int copy(char *src_dir, char *src_file, char *dst_base, char *dst_dir, cp_cmd_t cmd, bool indicate);
-int unlink(char *dir, char *file, bool indicate);
-int rmdir(char *dir, bool indicate);
-int mkdir(char *base, char *dir, bool indicate);
 
 bool yesno(char *text);
+int copy(char const *src_dir, char const *src_file, char const *dst_base, char const *dst_dir, cp_cmd_t cmd, bool indicate);
+int unlink(char const *dir, char const *file, bool indicate);
+int rmdir(char const *dir, bool indicate);
+int mkdir(char const *base, char const *dir, bool indicate);
 
 
 #endif // SHELL_H
