@@ -152,6 +152,8 @@ cfg_t *cfg_apply(cfg_t *lst){
 	if(argv::archive != 0)	cfg->archive = true;
 	if(argv::set.indicate)	cfg->indicate = argv::indicate;
 	if(argv::set.preserve)	cfg->preserve = argv::preserve;
+	if(argv::set.noconfig)	cfg->noconfig = argv::noconfig;
+	if(argv::set.nodata)	cfg->nodata = argv::nodata;
 	if(argv::set.verbosity)	cfg->verbosity = argv::verbosity;
 
 	return cfg;

@@ -20,6 +20,10 @@ typedef enum{
 	OPT_VERBOSE,
 	OPT_HELP,
 	OPT_VERSION,
+	OPT_NOCONFIG,
+	OPT_DOCONFIG,
+	OPT_NODATA,
+	OPT_DODATA,
 } opt_id_t;
 
 typedef struct{

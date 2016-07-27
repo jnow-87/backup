@@ -12,6 +12,8 @@
 		  "\t\tarchive: %d\n" \
 		  "\t\tpreserve: %d\n" \
 		  "\t\tindicate: %d\n" \
+		  "\t\tnoconfig: %d\n" \
+		  "\t\tnodata: %d\n" \
 		  "\t\tverbosity: %u\n" \
 		  "\n", \
 		  cfg->name, \
@@ -22,6 +24,8 @@
 		  cfg->archive, \
 		  cfg->preserve, \
 		  cfg->indicate, \
+		  cfg->noconfig, \
+		  cfg->nodata, \
 		  cfg->verbosity \
 	); \
 }
@@ -43,7 +47,9 @@ public:
 
 	bool archive,
 		 indicate,
-		 preserve;
+		 preserve,
+		 noconfig,
+		 nodata;
 
 	unsigned int verbosity;
 

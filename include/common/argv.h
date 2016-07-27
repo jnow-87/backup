@@ -14,6 +14,8 @@
 		"\t%s: %d\n" \
 		"\t%s: %d\n" \
 		"\t%s: %u\n" \
+		"\t%s: %u\n" \
+		"\t%s: %u\n" \
 		"\t%s: %u\n\n" \
 		, \
 		"config-file", argv::config_file, \
@@ -25,6 +27,8 @@
 		"restore", argv::restore, \
 		"indicate", argv::indicate, \
 		"preserve", argv::preserve, \
+		"noconfig", argv::noconfig, \
+		"nodata", argv::nodata, \
 		"verbosity", argv::verbosity \
 	);
 
@@ -36,7 +40,9 @@ public:
 	typedef struct{
 		unsigned int verbosity:1,
 					 indicate:1,
-					 preserve:1;
+					 preserve:1,
+					 noconfig:1,
+					 nodata:1;
 	} set_t;
 
 	/* public functions */
@@ -58,7 +64,9 @@ public:
 
 	static bool restore,
 		 		indicate,
-		 		preserve;
+		 		preserve,
+				noconfig,
+				nodata;
 
 	static set_t set;
 

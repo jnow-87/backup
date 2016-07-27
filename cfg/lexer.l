@@ -53,6 +53,8 @@
 ".archive"						{ return CFG_ARCHIVE; }
 ".indicate"						{ return CFG_INDICATE; }
 ".preserve"						{ return CFG_PRESERVE; }
+".noconfig"						{ return CFG_NOCONFIG; }
+".nodata"						{ return CFG_NODATA; }
 ".verbose"						{ return CFG_VERBOSE; }
 
 	/* directory options */

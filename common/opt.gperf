@@ -36,6 +36,10 @@
 		{ .id = OPT_PRESERVE,		.long_name = "--preserve",		.short_name = "-p",	.arg = "",			.help = "preserve temporary files" },
 		{ .id = OPT_HELP,			.long_name = "--help",			.short_name = "-h",	.arg = "",			.help = "print this help message" },
 		{ .id = OPT_VERSION,		.long_name = "--version",		.short_name = "",	.arg = "",			.help = "print version tag and git hash" },
+		{ .id = OPT_NOCONFIG,		.long_name = "--noconfig",		.short_name = "",	.arg = "",			.help = "do not backup/restore config files (files without rsync-dir)" },
+		{ .id = OPT_DOCONFIG,		.long_name = "--doconfig",		.short_name = "",	.arg = "",			.help = "backup/restore config files (files without rsync-dir)" },
+		{ .id = OPT_NODATA,			.long_name = "--nodata",		.short_name = "",	.arg = "",			.help = "do not backup/restore data files (files with rsync-dir)" },
+		{ .id = OPT_DODATA,			.long_name = "--dodata",		.short_name = "",	.arg = "",			.help = "backup/restore data files (files with rsync-dir)" },
 	};
 %}
 
@@ -67,4 +71,8 @@ struct opt_t;
 --help,			desc + 10
 -h,				desc + 10
 --version,		desc + 11
+--noconfig,		desc + 12
+--doconfig,		desc + 13
+--nodata,		desc + 14
+--dodata,		desc + 15
 %%

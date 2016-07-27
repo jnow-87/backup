@@ -33,6 +33,8 @@ char *argv::archive = 0;
 bool argv::restore = false;
 bool argv::indicate = false;
 bool argv::preserve = false;
+bool argv::noconfig = false;
+bool argv::nodata = false;
 char *argv::log_file = 0;
 unsigned int argv::verbosity = 0;
 argv::set_t argv::set = { 0 };
@@ -95,6 +97,26 @@ int argv::parse(int argc, char **argv){
 		case OPT_PRESERVE:
 			set.preserve = 1;
 			preserve = true;
+			break;
+
+		case OPT_NOCONFIG:
+			set.noconfig = 1;
+			noconfig = true;
+			break;
+
+		case OPT_DOCONFIG:
+			set.noconfig = 1;
+			noconfig = false;
+			break;
+
+		case OPT_NODATA:
+			set.nodata = 1;
+			nodata = true;
+			break;
+
+		case OPT_DODATA:
+			set.nodata = 1;
+			nodata = false;
 			break;
 
 		case OPT_LOG_FILE:

@@ -155,6 +155,8 @@
 %token CFG_ARCHIVE
 %token CFG_INDICATE
 %token CFG_PRESERVE
+%token CFG_NOCONFIG
+%token CFG_NODATA
 %token CFG_VERBOSE
 %token CFG_LOGFILE
 
@@ -214,6 +216,8 @@ config-member :	%empty												{ $$ = new cfg_t(); cfgunput(','); }
 			  |	config-member ',' CFG_ARCHIVE '=' integer			{ $$->archive = $5; }
 			  |	config-member ',' CFG_INDICATE '=' integer			{ $$->indicate = $5; }
 			  |	config-member ',' CFG_PRESERVE '=' integer			{ $$->preserve = $5; }
+			  |	config-member ',' CFG_NOCONFIG '=' integer			{ $$->noconfig = $5; }
+			  |	config-member ',' CFG_NODATA '=' integer			{ $$->nodata = $5; }
 			  |	config-member ',' CFG_VERBOSE '=' integer			{ $$->verbosity = $5; }
 			  ;
 
