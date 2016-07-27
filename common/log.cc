@@ -103,8 +103,11 @@ void log::vprint(log_level_t lvl, char const *msg, va_list lst){
 	va_copy(cp, lst);
 
 	if(lvl & log_level){
-		if(lvl & ERROR)	vfprintf(stderr, msg, lst);
-		else			vprintf(msg, lst);
+		if(lvl & ERROR)	fp = stderr;
+		else			fp = stdout;
+
+		vfprintf(fp, msg, lst);
+		fflush(fp);
 	}
 
 	if(log_file){
