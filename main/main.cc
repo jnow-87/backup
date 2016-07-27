@@ -75,7 +75,7 @@ int main(int argc, char **argv){
 	tcgetattr(0, &term_s);
 	tcgetattr(0, &term_b);
 
-	term_s.c_lflag &= ~(ICANON);
+	term_s.c_lflag &= ~(ECHO | ICANON);
 
 	tcsetattr(0, TCSAFLUSH, &term_s);
 
