@@ -207,45 +207,49 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 		goto clean;
 
 	/* cp files w/o rsync directory */
-	USERHEAD("[processing 'normal' files (files w/o rsync directory)");
+	if(!cfg->noconfig){
+		USERHEAD("[processing 'normal' files (files w/o rsync directory)");
 
-	list_for_each(dir_lst, dir){
-		list_for_each(dir->file_lst, file){
-			// TODO
-			// 	ensure file.name does not end on '/'
-			// 	combine dir->path and file->name, removing the file
-			if(file->rsync_dir == 0){
-				dst = dirname(dir->path, file->name);
+		list_for_each(dir_lst, dir){
+			list_for_each(dir->file_lst, file){
+				// TODO
+				// 	ensure file.name does not end on '/'
+				// 	combine dir->path and file->name, removing the file
+				if(file->rsync_dir == 0){
+					dst = dirname(dir->path, file->name);
 
-				copy(dir->path, file->name, cfg->tmp_dir, (dst[0] == '/') ? dst + 1 : dst, CMD_COPY, cfg->indicate);
+					copy(dir->path, file->name, cfg->tmp_dir, (dst[0] == '/') ? dst + 1 : dst, CMD_COPY, cfg->indicate);
 
-				delete [] dst;
+					delete [] dst;
+				}
 			}
+		}
+
+		/* cp to out directory or generate archive */
+		if(mkdir(0, cfg->out_dir, cfg->indicate) != 0)
+			return;
+
+		if(cfg->archive){
+			snprintf(name, MAXLEN, "backup_%s.tar.gz", log::stime());
+
+			USERHEAD("[creating backup archive \"%s\"]", name);
+			tar("czf", cfg->tmp_dir, cfg->out_dir, name, cfg->indicate);
+		}
+		else{
+			USERHEAD("[copy to output directory \"%s\"]", cfg->tmp_dir);
+			copy(cfg->tmp_dir, "*", "", cfg->out_dir, CMD_RSYNC, cfg->indicate);
 		}
 	}
 
-	/* cp to out directory or generate archive */
-	if(mkdir(0, cfg->out_dir, cfg->indicate) != 0)
-		return;
-
-	if(cfg->archive){
-		snprintf(name, MAXLEN, "backup_%s.tar.gz", log::stime());
-
-		USERHEAD("[creating backup archive \"%s\"]", name);
-		tar("czf", cfg->tmp_dir, cfg->out_dir, name, cfg->indicate);
-	}
-	else{
-		USERHEAD("[copy to output directory \"%s\"]", cfg->tmp_dir);
-		copy(cfg->tmp_dir, "*", "", cfg->out_dir, CMD_RSYNC, cfg->indicate);
-	}
-
 	/* cp files with rsync directory */
-	USERHEAD("[processing 'rsync' files (files with rsync directory)");
+	if(!cfg->nodata){
+		USERHEAD("[processing 'rsync' files (files with rsync directory)");
 
-	list_for_each(dir_lst, dir){
-		list_for_each(dir->file_lst, file){
-			if(file->rsync_dir != 0)
-				copy(dir->path, file->name, cfg->rsync_dir, file->rsync_dir, CMD_RSYNC, cfg->indicate);
+		list_for_each(dir_lst, dir){
+			list_for_each(dir->file_lst, file){
+				if(file->rsync_dir != 0)
+					copy(dir->path, file->name, cfg->rsync_dir, file->rsync_dir, CMD_RSYNC, cfg->indicate);
+			}
 		}
 	}
 

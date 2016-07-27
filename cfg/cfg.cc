@@ -11,6 +11,8 @@ cfg_t::cfg_t(){
 	archive= false;
 	indicate = false;
 	preserve = false;
+	noconfig = false;
+	nodata = false;
 
 	verbosity = 0;
 }
