@@ -28,4 +28,5 @@ hi def link bcType					mblue
 hi def link bcMember				mlblue
 hi def link bcString				white
 
-set foldmethod=syntax
+setlocal foldmethod=syntax
+setlocal commentstring=/*%s*/
