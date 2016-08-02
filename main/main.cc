@@ -26,6 +26,7 @@ static void restore(cfg_t *cfg, dir_t *dir_lst);
 int main(int argc, char **argv){
 	int ret;
 	bool valid;
+	char name[MAXLEN];
 	cfg_t *cfg_lst,
 		  *cit,
 		  *cfg;
@@ -35,6 +36,8 @@ int main(int argc, char **argv){
 
 
 	ret = 1;
+	cfg_lst = 0;
+	dir_lst = 0;
 
 	/* parse command line */
 	if(argv::parse(argc, argv) != 0)
@@ -43,9 +46,55 @@ int main(int argc, char **argv){
 	if(argv::set.verbosity)
 		log::set_log_level(argv::verbosity);
 
+	/* prepare terminal paramter */
+	tcgetattr(0, &term_s);
+	tcgetattr(0, &term_b);
+
+	term_s.c_lflag &= ~(ECHO | ICANON);
+
+	tcsetattr(0, TCSAFLUSH, &term_s);
+
+	/* untar archive if restore from archive */
+	if(argv::restore && ftype("", argv::archive) == FTYPE_FILE){
+		// force default tmp-dir to be used, to avoid extrating
+		// the backup archive to the default directory while using
+		// the directory from the config file afterwards
+		argv::set.tmp_dir = 1;
+
+		if(mkdir("", argv::tmp_dir, false) != 0)
+			goto cleanup;
+
+		if(tar("xzf", argv::archive, argv::tmp_dir, "", false) != 0){
+			rmdir(argv::tmp_dir, false);
+			goto cleanup;
+		}
+	}
+
 	/* parse config file */
-	if(cfgparse(argv::config_file, &cfg_lst, &dir_lst, &valid) != 0 || !valid)
+	if(argv::restore){
+		switch(ftype("", argv::archive)){
+		case FTYPE_DIR:
+			snprintf(name, MAXLEN, "%s%sconfig.bc", argv::archive, (argv::archive[strlen(argv::archive) - 1] != '/' ? "/" : ""));
+			break;
+
+		case FTYPE_FILE:
+			snprintf(name, MAXLEN, "%sconfig.bc", argv::tmp_dir);
+			break;
+
+		default:
+			goto cleanup;
+		}
+	}
+	else
+		snprintf(name, MAXLEN, argv::config_file);
+
+	USER("parsing configuration from %s " POSSAFE "\n", name);
+
+	if(cfgparse(name, &cfg_lst, &dir_lst, &valid) != 0 || !valid)
 		goto cleanup;
+
+	USER(POSRESTORE POSUP);
+	USEROK();
 
 	/* synchronise config and command line */
 	cfg = cfg_apply(cfg_lst);
@@ -71,24 +120,20 @@ int main(int argc, char **argv){
 	list_for_each(dir_lst, dit)
 		DIR_PRINT(dit, USER2);
 
-	/* set terminal paramter */
-	tcgetattr(0, &term_s);
-	tcgetattr(0, &term_b);
-
-	term_s.c_lflag &= ~(ECHO | ICANON);
-
-	tcsetattr(0, TCSAFLUSH, &term_s);
-
 	/* main functions */
 	if(argv::restore)	restore(cfg, dir_lst);
 	else				backup(cfg, dir_lst);
 
-	/* reset terminal paramter */
-	tcsetattr(0, TCSAFLUSH, &term_b);
+	/* delete tmp directory */
+	if(!cfg->preserve)
+		rmdir(cfg->tmp_dir, cfg->indicate);
 
 	ret = 0;
 
 cleanup:
+	/* reset terminal paramter */
+	tcsetattr(0, TCSAFLUSH, &term_b);
+
 	/* cleanup */
 	list_for_each(cfg_lst, cit){
 		list_rm(&cfg_lst, cit);
@@ -166,7 +211,7 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 	if(mkdir(0, cfg->tmp_dir, cfg->indicate) != 0)	return;
 
 	/* cp config to tmp directory */
-	if(copy("", argv::config_file, "", cfg->tmp_dir, CMD_COPY, cfg->indicate) != 0)
+	if(copy("", argv::config_file, "", cfg->tmp_dir, "config.bc", CMD_COPY, cfg->indicate) != 0)
 		return;
 
 	/* create backup.date in tmp directory */
@@ -175,7 +220,7 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 
 	if(fp == 0){
 		USERERR("backup.date: %s", strerror(errno));
-		goto clean;
+		return;
 	}
 
 	fprintf(fp, "%s\n", log::stime());
@@ -183,8 +228,8 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 
 	USEROK();
 
-	if(copy("", "backup.date", "", cfg->tmp_dir, CMD_MOVE, cfg->indicate) != 0)
-		goto clean;
+	if(copy("", "backup.date", "", cfg->tmp_dir, "", CMD_MOVE, cfg->indicate) != 0)
+		return;
 
 	/* cp files w/o rsync directory */
 	if(!cfg->noconfig){
@@ -192,13 +237,10 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 
 		list_for_each(dir_lst, dir){
 			list_for_each(dir->file_lst, file){
-				// TODO
-				// 	ensure file.name does not end on '/'
-				// 	combine dir->path and file->name, removing the file
 				if(file->rsync_dir == 0){
 					dst = dirname(dir->path, file->name);
 
-					copy(dir->path, file->name, cfg->tmp_dir, (dst[0] == '/') ? dst + 1 : dst, CMD_COPY, cfg->indicate);
+					copy(dir->path, file->name, cfg->tmp_dir, (dst[0] == '/') ? dst + 1 : dst, "", CMD_COPY, cfg->indicate);
 
 					delete [] dst;
 				}
@@ -210,14 +252,14 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 			return;
 
 		if(cfg->archive){
-			snprintf(name, MAXLEN, "backup_%s.tar.gz", log::stime());
+			snprintf(name, MAXLEN, "%sbackup_%s.tar.gz", cfg->out_dir, log::stime());
 
 			USERHEAD("[creating backup archive \"%s\"]", name);
-			tar("czf", cfg->tmp_dir, cfg->out_dir, name, cfg->indicate);
+			tar("czf", name, cfg->tmp_dir, ".", cfg->indicate);
 		}
 		else{
 			USERHEAD("[copy to output directory \"%s\"]", cfg->tmp_dir);
-			copy(cfg->tmp_dir, "*", "", cfg->out_dir, CMD_RSYNC, cfg->indicate);
+			copy(cfg->tmp_dir, "*", "", cfg->out_dir, "", CMD_RSYNC, cfg->indicate);
 		}
 	}
 
@@ -228,15 +270,10 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 		list_for_each(dir_lst, dir){
 			list_for_each(dir->file_lst, file){
 				if(file->rsync_dir != 0)
-					copy(dir->path, file->name, cfg->rsync_dir, file->rsync_dir, CMD_RSYNC, cfg->indicate);
+					copy(dir->path, file->name, cfg->rsync_dir, file->rsync_dir, "", CMD_RSYNC, cfg->indicate);
 			}
 		}
 	}
-
-clean:
-	/* delete tmp directory */
-	if(!cfg->preserve)
-		rmdir(cfg->tmp_dir, cfg->indicate);
 }
 
 /**
@@ -244,10 +281,10 @@ clean:
  * 	- restore from archive or directory (change help message)
  * 	- copy files
  * 		- ask for every file to
- * 			- copy
- * 			- move
- * 			- skip
- * 			- show diff
+ * 			- copy/all		c/C
+ * 			- move/all		m/M
+ * 			- skip/all		s/S
+ * 			- show diff/all	d/D
  *
  * 	- add 'perform for all files' option
  */
@@ -258,5 +295,10 @@ void restore(cfg_t *cfg, dir_t *dir_lst){
 
 
 	USERHEAD("[restore from \"%s\"]", argv::archive);
-	// TODO
+
+	if(!cfg->noconfig){
+	}
+
+	if(!cfg->nodata){
+	}
 }

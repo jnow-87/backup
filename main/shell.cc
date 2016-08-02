@@ -51,16 +51,16 @@ int shell(char const *cmd, ...);
 
 
 /* global functions */
-int copy(char const *src_dir, char const *src_file, char const *dst_base, char const *dst_dir, cp_cmd_t cmd, bool indicate){
+int copy(char const *src_dir, char const *src_file, char const *dst_base, char const *dst_dir, char const *dst_file, cp_cmd_t cmd, bool indicate){
 	int fd;
 	struct stat fs;
 
 
-	USER("%s %s%s -> %s%s ", cmd_txt[cmd], PATHCONCAT(src_dir, src_file), PATHCONCAT(dst_base, dst_dir));
+	USER("%s %s%s -> %s%s%s ", cmd_txt[cmd], PATHCONCAT(src_dir, src_file), PATHCONCAT(dst_base, dst_dir), STRNULL(dst_file));
 
 	/* check arguments */
 	// pointer
-	if(src_dir == 0 || src_file == 0 || dst_dir == 0 || (dst_dir[0] != '/' && dst_base == 0)){
+	if(src_dir == 0 || src_file == 0 || dst_dir == 0 || (dst_dir[0] != '/' && dst_base == 0) || dst_file == 0){
 		USERERR("null string argument");
 		return -1;
 	}
@@ -100,7 +100,7 @@ int copy(char const *src_dir, char const *src_file, char const *dst_base, char c
 	}
 
 	// issue command
-	if(SHELL("%s %s%s %s%s", cmd_str[cmd], PATHCONCAT(src_dir, src_file), PATHCONCAT(dst_base, dst_dir)) != 0){
+	if(SHELL("%s %s%s %s%s%s", cmd_str[cmd], PATHCONCAT(src_dir, src_file), PATHCONCAT(dst_base, dst_dir), dst_file) != 0){
 		USERERR("%s", errstr);
 		return -1;
 	}
@@ -205,11 +205,11 @@ int mkdir(char const *base, char const *dir, bool indicate){
 	return 0;
 }
 
-int tar(char const *opt, char const *src_dir, char const *dst_dir, char const *archive, bool indicate){
-	USER("tar %s %s%s %s ", STRNULL(opt), PATHCONCAT(dst_dir, archive), STRNULL(src_dir));
+int tar(char const *mode, char const *archive, char const *dir, char const *opt, bool indicate){
+	USER("tar %s %s -C %s %s ", STRNULL(mode), STRNULL(archive), STRNULL(dir), STRNULL(opt));
 
 	/* check arguments */
-	if(opt == 0 || src_dir == 0 || dst_dir == 0 || archive == 0){
+	if(mode == 0 || dir == 0 || archive == 0 || opt == 0){
 		USERERR("null string argument");
 		return -1;
 	}
@@ -220,7 +220,7 @@ int tar(char const *opt, char const *src_dir, char const *dst_dir, char const *a
 		return 0;
 	}
 
-	if(SHELL("tar %s %s%s -C %s .", STRNULL(opt), PATHCONCAT(dst_dir, archive), STRNULL(src_dir)) != 0){
+	if(SHELL("tar %s %s -C %s %s", mode, archive, dir, opt) != 0){
 		USERERR("%s", errstr);
 		return -1;
 	}
@@ -228,6 +228,39 @@ int tar(char const *opt, char const *src_dir, char const *dst_dir, char const *a
 	USEROK();
 
 	return 0;
+}
+
+ftype_t ftype(char const *path, char const *file){
+	int fd;
+	struct stat fs;
+
+
+	if(path == 0 || file == 0)
+		return FTYPE_ERROR;
+
+	// open path
+	if(file[0] == '/')		fd = open("/", O_RDONLY);
+	else if(path[0] == 0)	fd = open("./", O_RDONLY);
+	else					fd = open(path, O_RDONLY);
+
+	if(fd == -1){
+		ERROR("%s: %s\n", path, strerror(errno));
+		return FTYPE_ERROR;
+	}
+
+	// get file stat
+	if(fstatat(fd, file, &fs, 0) != 0){
+		ERROR("%s%s: %s\n", PATHCONCAT(path, file), strerror(errno));
+		close(fd);
+		return FTYPE_ERROR;
+	}
+
+	close(fd);
+
+	if(fs.st_mode & S_IFDIR)	return FTYPE_DIR;
+	if(fs.st_mode & S_IFREG)	return FTYPE_FILE;
+
+	return FTYPE_OTHER;
 }
 
 

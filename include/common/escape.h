@@ -32,6 +32,9 @@
 #define BLINK		"\033[5m"
 #define INVERSE		"\033[7m"
 #define INVISIBLE	"\033[8m"
+#define POSSAFE		"\033[s"
+#define POSRESTORE	"\033[u"
+#define POSUP		"\033[A"
 
 
 #endif // ESCAPE_H
