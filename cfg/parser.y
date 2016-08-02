@@ -190,7 +190,7 @@ start :	%empty														{ }
 
 /* statement */
 stmt :	SPEC_CFG IDFR '=' '{' config-member '}'						{ $5->name = stralloc($2.s, $2.len); list_add_tail(cfg_lst, $5); }
-	 |	SPEC_DIR STRING '=' '{' dir-member '}'						{ $5->path = DIRALLOC($2.s, $2.len); list_add_tail(dir_lst, $5); }
+	 |	SPEC_DIR STRING '=' '{' dir-member '}'						{ $5->path = diralloc($2.s, $2.len); list_add_tail(dir_lst, $5); }
 	 |	SPEC_VAR IDFR '=' variable									{
 																		string name = string($2.s, $2.len);
 
@@ -209,10 +209,10 @@ stmt :	SPEC_CFG IDFR '=' '{' config-member '}'						{ $5->name = stralloc($2.s, 
 
 /* config */
 config-member :	%empty												{ $$ = new cfg_t(); cfgunput(','); }
-			  |	config-member ',' CFG_OUT_DIR '=' string			{ $$->out_dir = DIRALLOC((char*)($5->c_str()), $5->length()); delete $5; }
-			  |	config-member ',' CFG_TMP_DIR '=' string			{ $$->tmp_dir = DIRALLOC((char*)($5->c_str()), $5->length()); delete $5; }
+			  |	config-member ',' CFG_OUT_DIR '=' string			{ $$->out_dir = diralloc((char*)($5->c_str()), $5->length()); delete $5; }
+			  |	config-member ',' CFG_TMP_DIR '=' string			{ $$->tmp_dir = diralloc((char*)($5->c_str()), $5->length()); delete $5; }
 			  |	config-member ',' CFG_LOG_FILE '=' string			{ $$->log_file = stralloc((char*)($5->c_str()), $5->length()); delete $5; }
-			  |	config-member ',' CM_RSYNC_DIR '=' string			{ $$->rsync_dir = DIRALLOC((char*)($5->c_str()), $5->length()); delete $5; }
+			  |	config-member ',' CM_RSYNC_DIR '=' string			{ $$->rsync_dir = diralloc((char*)($5->c_str()), $5->length()); delete $5; }
 			  |	config-member ',' CFG_ARCHIVE '=' integer			{ $$->archive = $5; }
 			  |	config-member ',' CFG_INDICATE '=' integer			{ $$->indicate = $5; }
 			  |	config-member ',' CFG_PRESERVE '=' integer			{ $$->preserve = $5; }
@@ -227,7 +227,7 @@ dir-member :	%empty												{ $$ = new dir_t(); cfgunput(','); }
 
 file-member :	%empty												{ $$ = new file_t(); cfgunput(','); }
 			|	file-member ',' FILE_NAME '=' string				{ $$ = $1; $$->name = stralloc((char*)($5->c_str()), $5->length()); delete $5; }
-			|	file-member ',' CM_RSYNC_DIR '=' string				{ $$ = $1; $$->rsync_dir = DIRALLOC((char*)($5->c_str()), $5->length()); delete $5; }
+			|	file-member ',' CM_RSYNC_DIR '=' string				{ $$ = $1; $$->rsync_dir = diralloc((char*)($5->c_str()), $5->length()); delete $5; }
 			;
 
 /* variable */

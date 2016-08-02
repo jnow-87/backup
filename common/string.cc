@@ -1,7 +1,7 @@
 #include <string.h>
 
 
-char *stralloc(char *_s, unsigned int len){
+char *stralloc(char const *_s, unsigned int len){
 	char *s;
 
 	s = new char[len + 1];
@@ -14,6 +14,29 @@ char *stralloc(char *_s, unsigned int len){
 	}
 
 	return s;
+}
+
+char *stralloc(char const *s){
+	return stralloc(s, strlen(s));
+}
+
+char *diralloc(char const *name, unsigned int len){
+	char *s;
+
+
+	if(len != 0 && name != 0 && name[len - 1] != '/'){
+		s = stralloc(name, len + 1);
+		s[len] = '/';
+		s[len + 1] = 0;
+	}
+	else
+		s = stralloc(name, len);
+
+	return s;
+}
+
+char *diralloc(char const *name){
+	return diralloc(name, strlen(name));
 }
 
 char *dirname(char const *base, char const *path){

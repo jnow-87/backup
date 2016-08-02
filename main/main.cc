@@ -80,17 +80,6 @@ int main(int argc, char **argv){
 	tcsetattr(0, TCSAFLUSH, &term_s);
 
 	/* main functions */
-	/* TODO
-	 * cmd line
-	 * 	-r	restore from archive
-	 * 	-a	backup with archive
-	 * 	-	backup with copy
-	 *
-	 * config
-	 * 	.archive = 1	backup with archive
-	 * 	.archive = 0	backup with copy
-	 */
-
 	if(argv::restore)	restore(cfg, dir_lst);
 	else				backup(cfg, dir_lst);
 
@@ -112,6 +101,7 @@ cleanup:
 	}
 
 	log::cleanup();
+	argv::cleanup();
 
 	return ret;
 }
@@ -119,16 +109,6 @@ cleanup:
 
 /* local functions */
 cfg_t *cfg_apply(cfg_t *lst){
-#define REALLOC(s, default){ \
-	if(argv::s){ \
-		delete [] cfg->s; \
-		cfg->s = DIRALLOC(argv::s, strlen(argv::s)); \
-	} \
-	\
-	if(cfg->s == 0) \
-		cfg->s = DIRALLOC((char*)default, strlen(default)); \
-}
-
 	cfg_t *cfg;
 
 
@@ -139,12 +119,16 @@ cfg_t *cfg_apply(cfg_t *lst){
 		return 0;
 	}
 
-	REALLOC(out_dir, CONFIG_OUT_DIR);
-	REALLOC(tmp_dir, CONFIG_TMP_DIR);
-	REALLOC(log_file, CONFIG_LOG_FILE);
+	if(argv::set.out_dir || cfg->out_dir == 0)
+		XCHG(cfg->out_dir, argv::out_dir);
 
-	if(cfg->log_file[strlen(cfg->log_file) - 1] == '/')
-		cfg->log_file[strlen(cfg->log_file) - 1] = 0;
+	if(argv::set.tmp_dir || cfg->tmp_dir == 0)
+		XCHG(cfg->tmp_dir, argv::tmp_dir);
+
+	if(argv::set.log_file || cfg->log_file == 0){
+		delete [] cfg->log_file;
+		cfg->log_file = stralloc(argv::log_file);
+	}
 
 	if(cfg->rsync_dir == 0)
 		cfg->rsync_dir = stralloc(cfg->out_dir, strlen(cfg->out_dir));
@@ -157,15 +141,11 @@ cfg_t *cfg_apply(cfg_t *lst){
 	if(argv::set.verbosity)	cfg->verbosity = argv::verbosity;
 
 	return cfg;
-
-#undef REALLOC
 }
 
 /**
  * TODO
  * 	- main functionality
- * 		- rsync_dir is relative to out_dir or absolute
- * 		- options: --noconfig --nodata
  * 		- handle "special" directories like "homes"
  *
  */

@@ -42,20 +42,24 @@ public:
 					 indicate:1,
 					 preserve:1,
 					 noconfig:1,
-					 nodata:1;
+					 nodata:1,
+					 out_dir:1,
+					 tmp_dir:1,
+					 log_file:1;
 	} set_t;
 
 	/* public functions */
 	static int parse(int argc, char **argv);
+	static void cleanup();
 
 	/* public variables */
 	static char *prog_name;
 
-	static char *log_file;
+	static char const *log_file;
 	static unsigned int verbosity;
 
-	static char *config_file,
-		 		*config;
+	static char const *config_file,
+		 			  *config;
 
 	static char *out_dir,
 				*tmp_dir;

@@ -3,6 +3,7 @@
 #include <common/opt.hash.h>
 #include <common/argv.h>
 #include <common/escape.h>
+#include <common/string.h>
 #include <version.h>
 #include <string.h>
 #include <stdio.h>
@@ -24,9 +25,10 @@
 	argv[++i]; \
 })
 
+
 /* class definition */
-char *argv::config_file = (char*)CONFIG_CONFIG_FILE;
-char *argv::config = (char*)CONFIG_CONFIG;
+char const *argv::config_file = CONFIG_CONFIG_FILE;
+char const *argv::config = CONFIG_CONFIG;
 char *argv::out_dir = 0;
 char *argv::tmp_dir = 0;
 char *argv::archive = 0;
@@ -35,7 +37,7 @@ bool argv::indicate = false;
 bool argv::preserve = false;
 bool argv::noconfig = false;
 bool argv::nodata = false;
-char *argv::log_file = 0;
+char const *argv::log_file = CONFIG_LOG_FILE;
 unsigned int argv::verbosity = 0;
 argv::set_t argv::set = { 0 };
 
@@ -73,20 +75,22 @@ int argv::parse(int argc, char **argv){
 			break;
 
 		case OPT_OUT_DIR:
-			out_dir = GET_ARG();
+			set.out_dir = 1;
+			out_dir = diralloc(GET_ARG());
 			break;
 
 		case OPT_TMP_DIR:
-			tmp_dir = GET_ARG();
+			set.tmp_dir = 1;
+			tmp_dir = diralloc(GET_ARG());
 			break;
 
 		case OPT_RESTORE:
 			restore = true;
-			archive = GET_ARG();
+			archive = stralloc(GET_ARG());
 			break;
 
 		case OPT_ARCHIVE:
-			archive = (char*)"";
+			archive = stralloc("");
 			break;
 
 		case OPT_INDICATE:
@@ -120,6 +124,7 @@ int argv::parse(int argc, char **argv){
 			break;
 
 		case OPT_LOG_FILE:
+			set.log_file = 1;
 			log_file = GET_ARG();
 			break;
 
@@ -138,7 +143,19 @@ int argv::parse(int argc, char **argv){
 		}
 	}
 
+	if(tmp_dir == 0)	tmp_dir = diralloc(CONFIG_TMP_DIR);
+	if(out_dir == 0)	out_dir = diralloc(CONFIG_OUT_DIR);
+
 	return 0;
+}
+
+/**
+ * \brief	free memory
+ */
+void argv::cleanup(){
+	delete [] tmp_dir;
+	delete [] out_dir;
+	delete [] archive;
 }
 
 /**
