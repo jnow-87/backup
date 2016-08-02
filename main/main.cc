@@ -120,13 +120,27 @@ int main(int argc, char **argv){
 	list_for_each(dir_lst, dit)
 		DIR_PRINT(dit, USER2);
 
+	/* check UID */
+	if(geteuid() != 0)
+		USER(FG_YELLOW "executing as none-root user, some files might not be accessible" RESET_ATTR "\n");
+
 	/* main functions */
 	if(argv::restore)	restore(cfg, dir_lst);
 	else				backup(cfg, dir_lst);
 
+	USERHEAD("[cleaning up]");
+
 	/* delete tmp directory */
 	if(!cfg->preserve)
 		rmdir(cfg->tmp_dir, cfg->indicate);
+
+	/* flush buffers */
+	USER("flushing file system caches ");
+
+	if(file_write("/proc/sys/vm/drop_caches", "w", "3\n") != 0)
+		USERERR("/proc/sys/vm/drop_caches: %s", strerror(errno));
+	else
+		USEROK();
 
 	ret = 0;
 
@@ -195,7 +209,6 @@ cfg_t *cfg_apply(cfg_t *lst){
  *
  */
 void backup(cfg_t *cfg, dir_t *dir_lst){
-	FILE *fp;
 	char name[MAXLEN];
 	char *dst;
 	dir_t *dir;
@@ -206,9 +219,9 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 	if(!yesno("continue backup?"))
 		return;
 
-	/* init tmp directory */
-	if(rmdir(cfg->tmp_dir, cfg->indicate) != 0)		return;
-	if(mkdir(0, cfg->tmp_dir, cfg->indicate) != 0)	return;
+	/* remove tmp directory */
+	if(rmdir(cfg->tmp_dir, cfg->indicate) != 0)
+		return;
 
 	/* cp config to tmp directory */
 	if(copy("", argv::config_file, "", cfg->tmp_dir, "config.bc", CMD_COPY, cfg->indicate) != 0)
@@ -216,15 +229,11 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 
 	/* create backup.date in tmp directory */
 	USER("generating backup.date ");
-	fp = fopen("backup.date", "w");
 
-	if(fp == 0){
+	if(file_write("backup.date", "w", "%s\n", log::stime()) != 0){
 		USERERR("backup.date: %s", strerror(errno));
 		return;
 	}
-
-	fprintf(fp, "%s\n", log::stime());
-	fclose(fp);
 
 	USEROK();
 
@@ -265,7 +274,7 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 
 	/* cp files with rsync directory */
 	if(!cfg->nodata){
-		USERHEAD("[processing 'rsync' files (files with rsync directory)");
+		USERHEAD("[processing 'rsync' files (files with rsync directory)]");
 
 		list_for_each(dir_lst, dir){
 			list_for_each(dir->file_lst, file){

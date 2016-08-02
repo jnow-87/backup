@@ -263,6 +263,25 @@ ftype_t ftype(char const *path, char const *file){
 	return FTYPE_OTHER;
 }
 
+int file_write(char const *file, char const *flags, char const *fmt, ...){
+	FILE *fp;
+	va_list lst;
+
+
+	fp = fopen(file, flags);
+
+	if(fp == 0)
+		return -1;
+
+	va_start(lst, fmt);
+	vfprintf(fp, fmt, lst);
+	va_end(lst);
+
+	fclose(fp);
+
+	return 0;
+}
+
 
 /* local functions */
 int shell(char const *cmd, ...){

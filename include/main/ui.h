@@ -14,11 +14,11 @@
 #define USEROK() \
 	USER(FG_GREEN "[OK]" RESET_ATTR "\n")
 
-#define USERERR(msg, ...){ \
+#define USERERR(msg, ...)({ \
 	USER(FG_RED "[ERR]"); \
 	USER1(" (" msg ")", ##__VA_ARGS__); \
 	USER(RESET_ATTR "\n"); \
-}
+})
 
 #define USERHEAD(msg, ...) \
 	USER("\n" FG_VIOLETT msg RESET_ATTR "\n", ##__VA_ARGS__)
