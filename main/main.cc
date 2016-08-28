@@ -1,10 +1,10 @@
 #include <config/config.h>
 #include <common/log.h>
-#include <common/argv.h>
 #include <common/list.h>
 #include <common/escape.h>
 #include <common/string.h>
 #include <cfg/parser.tab.h>
+#include <main/argv.h>
 #include <main/shell.h>
 #include <main/ui.h>
 #include <unistd.h>

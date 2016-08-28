@@ -4,13 +4,13 @@
 /* header */
 %{
 	#include <common/log.h>
-	#include <common/argv.h>
 	#include <common/list.h>
 	#include <common/string.h>
 	#include <common/escape.h>
 	#include <cfg/lexer.lex.h>
 	#include <cfg/cfg.h>
 	#include <cfg/dir.h>
+	#include <main/argv.h>
 	#include <string.h>
 	#include <errno.h>
 	#include <map>

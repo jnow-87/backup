@@ -1,9 +1,9 @@
 #include <config/config.h>
-#include <common/opt.h>
-#include <common/opt.hash.h>
-#include <common/argv.h>
 #include <common/escape.h>
 #include <common/string.h>
+#include <main/opt.h>
+#include <main/opt.hash.h>
+#include <main/argv.h>
 #include <version.h>
 #include <string.h>
 #include <stdio.h>

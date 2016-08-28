@@ -19,7 +19,7 @@
 /* c-code */
 %{
 	#include <common/log.h>
-	#include <common/opt.h>
+	#include <main/opt.h>
 
 
 	/* option description table */
@@ -30,7 +30,7 @@
 		{ .id = OPT_CONFIG,			.long_name = "--config",		.short_name = "-c",	.arg = "<name>",	.help = "apply configuration <name>" },
 		{ .id = OPT_OUT_DIR,		.long_name = "--out",			.short_name = "-o",	.arg = "<path>",	.help = "store temporary files to <path>" },
 		{ .id = OPT_TMP_DIR,		.long_name = "--tmp",			.short_name = "-t",	.arg = "<path>",	.help = "store temporary files to <path>" },
-		{ .id = OPT_RESTORE,		.long_name = "--restore",		.short_name = "-r",	.arg = "<archive>",	.help = "restore backup from <archive>" },
+		{ .id = OPT_RESTORE,		.long_name = "--restore",		.short_name = "-r",	.arg = "<archive>",	.help = "restore backup from <archive> or <path>" },
 		{ .id = OPT_INDICATE,		.long_name = "--indicate",		.short_name = "-i",	.arg = "",			.help = "indicate modifications but do not execute" },
 		{ .id = OPT_ARCHIVE,		.long_name = "--archive",		.short_name = "-a",	.arg = "",			.help = "create output archive in output directory" },
 		{ .id = OPT_PRESERVE,		.long_name = "--preserve",		.short_name = "-p",	.arg = "",			.help = "preserve temporary files" },
