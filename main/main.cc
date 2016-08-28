@@ -1,25 +1,19 @@
 #include <config/config.h>
 #include <common/log.h>
 #include <common/list.h>
-#include <common/escape.h>
 #include <common/string.h>
 #include <cfg/parser.tab.h>
 #include <main/argv.h>
 #include <main/shell.h>
 #include <main/ui.h>
+#include <main/backup.h>
+#include <main/restore.h>
 #include <unistd.h>
 #include <termios.h>
-#include <stdio.h>
-#include <string.h>
 
-
-/* macros */
-#define MAXLEN	256
 
 /* local/static prototypes */
 static cfg_t *cfg_apply(cfg_t *lst);
-static void backup(cfg_t *cfg, dir_t *dir_lst);
-static void restore(cfg_t *cfg, dir_t *dir_lst);
 
 
 /* global functions */
@@ -200,114 +194,4 @@ cfg_t *cfg_apply(cfg_t *lst){
 	if(argv::set.verbosity)	cfg->verbosity = argv::verbosity;
 
 	return cfg;
-}
-
-/**
- * TODO
- * 	- main functionality
- * 		- handle "special" directories like "homes"
- *
- */
-void backup(cfg_t *cfg, dir_t *dir_lst){
-	char name[MAXLEN];
-	char *dst;
-	dir_t *dir;
-	file_t *file;
-
-
-	/* check user */
-	if(!yesno("continue backup?"))
-		return;
-
-	/* remove tmp directory */
-	if(rmdir(cfg->tmp_dir, cfg->indicate) != 0)
-		return;
-
-	/* cp config to tmp directory */
-	if(copy("", argv::config_file, "", cfg->tmp_dir, "config.bc", CMD_COPY, cfg->indicate) != 0)
-		return;
-
-	/* create backup.date in tmp directory */
-	USER("generating backup.date ");
-
-	if(file_write("backup.date", "w", "%s\n", log::stime()) != 0){
-		USERERR("backup.date: %s", strerror(errno));
-		return;
-	}
-
-	USEROK();
-
-	if(copy("", "backup.date", "", cfg->tmp_dir, "", CMD_MOVE, cfg->indicate) != 0)
-		return;
-
-	/* cp files w/o rsync directory */
-	if(!cfg->noconfig){
-		USERHEAD("[processing 'normal' files (files w/o rsync directory)");
-
-		list_for_each(dir_lst, dir){
-			list_for_each(dir->file_lst, file){
-				if(file->rsync_dir == 0){
-					dst = dirname(dir->path, file->name);
-
-					copy(dir->path, file->name, cfg->tmp_dir, (dst[0] == '/') ? dst + 1 : dst, "", CMD_COPY, cfg->indicate);
-
-					delete [] dst;
-				}
-			}
-		}
-
-		/* cp to out directory or generate archive */
-		if(mkdir(0, cfg->out_dir, cfg->indicate) != 0)
-			return;
-
-		if(cfg->archive){
-			snprintf(name, MAXLEN, "%sbackup_%s.tar.gz", cfg->out_dir, log::stime());
-
-			USERHEAD("[creating backup archive \"%s\"]", name);
-			tar("czf", name, cfg->tmp_dir, ".", cfg->indicate);
-		}
-		else{
-			USERHEAD("[copy to output directory \"%s\"]", cfg->tmp_dir);
-			copy(cfg->tmp_dir, "*", "", cfg->out_dir, "", CMD_RSYNC, cfg->indicate);
-		}
-	}
-
-	/* cp files with rsync directory */
-	if(!cfg->nodata){
-		USERHEAD("[processing 'rsync' files (files with rsync directory)]");
-
-		list_for_each(dir_lst, dir){
-			list_for_each(dir->file_lst, file){
-				if(file->rsync_dir != 0)
-					copy(dir->path, file->name, cfg->rsync_dir, file->rsync_dir, "", CMD_RSYNC, cfg->indicate);
-			}
-		}
-	}
-}
-
-/**
- * TODO
- * 	- restore from archive or directory (change help message)
- * 	- copy files
- * 		- ask for every file to
- * 			- copy/all		c/C
- * 			- move/all		m/M
- * 			- skip/all		s/S
- * 			- show diff/all	d/D
- *
- * 	- add 'perform for all files' option
- */
-void restore(cfg_t *cfg, dir_t *dir_lst){
-	/* check user */
-	if(!yesno("continue restore?"))
-		return;
-
-
-	USERHEAD("[restore from \"%s\"]", argv::archive);
-
-	if(!cfg->noconfig){
-	}
-
-	if(!cfg->nodata){
-	}
 }

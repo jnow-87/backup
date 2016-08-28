@@ -2,6 +2,8 @@
 #define STRING_H
 
 /* macros */
+#define MAXLEN	256
+
 #define XCHG(a, b){ \
 	auto c = a; \
 	a = b; \

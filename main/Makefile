@@ -1,6 +1,6 @@
 bin-y := backup
 
-backup-y := main.o argv.o opt.hash.o shell.o ui.o common/ cfg/
+backup-y := main.o argv.o opt.hash.o shell.o ui.o backup.o restore.o common/ cfg/
 
 
 ## additional dependencies for generated headers
