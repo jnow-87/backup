@@ -8,7 +8,7 @@
 
 /* static variables */
 FILE *log::log_file = 0;
-log_level_t log::log_level = ((log_level_t)(USER0 | ERROR));
+log_level_t log::log_level = ((log_level_t)(USER0 | WARN | ERROR));
 
 
 /* class definition */
@@ -50,11 +50,11 @@ void log::set_log_level(unsigned int verbosity){
 		// fall through
 
 	case 1:
-		log_level = (log_level_t)(log_level | USER0 | ERROR | USER1);
+		log_level = (log_level_t)(log_level | USER0 | WARN | ERROR | USER1);
 		break;
 
 	case 0:
-		log_level = (log_level_t)(USER0 | ERROR);
+		log_level = (log_level_t)(USER0 | WARN | ERROR);
 		break;
 	}
 }
