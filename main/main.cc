@@ -82,13 +82,10 @@ int main(int argc, char **argv){
 	else
 		snprintf(name, MAXLEN, argv::config_file);
 
-	USER("parsing configuration from %s " POSSAFE "\n", name);
+	USER("parsing configuration from %s\n", name);
 
 	if(cfgparse(name, &cfg_lst, &dir_lst, &valid) != 0 || !valid)
 		goto cleanup;
-
-	USER(POSRESTORE POSUP);
-	USEROK();
 
 	/* synchronise config and command line */
 	cfg = cfg_apply(cfg_lst);
@@ -180,11 +177,11 @@ cfg_t *cfg_apply(cfg_t *lst){
 
 	if(argv::set.log_file || cfg->log_file == 0){
 		delete [] cfg->log_file;
-		cfg->log_file = stralloc(argv::log_file);
+		cfg->log_file = stralloc(argv::log_file, PF_FILE);
 	}
 
 	if(cfg->rsync_dir == 0)
-		cfg->rsync_dir = stralloc(cfg->out_dir, strlen(cfg->out_dir));
+		cfg->rsync_dir = stralloc(cfg->out_dir, PF_DIR);
 
 	if(argv::archive != 0)	cfg->archive = true;
 	if(argv::set.indicate)	cfg->indicate = argv::indicate;

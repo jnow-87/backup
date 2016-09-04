@@ -1,6 +1,6 @@
+#include <common/string.h>
 #include <main/shell.h>
 #include <main/ui.h>
-#include <common/string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -16,8 +16,6 @@ using namespace std;
 
 
 /* macros */
-#define MAXLEN	512
-
 #define PATHCONCAT(base, dir) \
 	(((dir) != 0 && (dir)[0] == '/') ? "" : STRNULL(base)), STRNULL(dir)
 

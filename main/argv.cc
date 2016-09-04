@@ -76,21 +76,21 @@ int argv::parse(int argc, char **argv){
 
 		case OPT_OUT_DIR:
 			set.out_dir = 1;
-			out_dir = diralloc(GET_ARG());
+			out_dir = stralloc(GET_ARG(), PF_DIR);
 			break;
 
 		case OPT_TMP_DIR:
 			set.tmp_dir = 1;
-			tmp_dir = diralloc(GET_ARG());
+			tmp_dir = stralloc(GET_ARG(), PF_DIR);
 			break;
 
 		case OPT_RESTORE:
 			restore = true;
-			archive = stralloc(GET_ARG());
+			archive = stralloc(GET_ARG(), 0);
 			break;
 
 		case OPT_ARCHIVE:
-			archive = stralloc("");
+			archive = stralloc("", 0);
 			break;
 
 		case OPT_INDICATE:
@@ -143,8 +143,8 @@ int argv::parse(int argc, char **argv){
 		}
 	}
 
-	if(tmp_dir == 0)	tmp_dir = diralloc(CONFIG_TMP_DIR);
-	if(out_dir == 0)	out_dir = diralloc(CONFIG_OUT_DIR);
+	if(tmp_dir == 0)	tmp_dir = stralloc(CONFIG_TMP_DIR, PF_DIR);
+	if(out_dir == 0)	out_dir = stralloc(CONFIG_OUT_DIR, PF_DIR);
 
 	return 0;
 }

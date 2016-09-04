@@ -1,42 +1,64 @@
 #include <string.h>
+#include <common/string.h>
 
 
-char *stralloc(char const *_s, unsigned int len){
-	char *s;
+char *stralloc(char const *name, unsigned int len, int flags){
+	char *s,
+		 *r,
+		 cfirst,
+		 clast;
+	int ext;
 
-	s = new char[len + 1];
 
-	if(s){
-		if(_s)	strncpy(s, _s, len);
-		else	len = 0;
+	ext = 0;
+	cfirst = name[0];
+	clast = name[(len > 0 ? len - 1 : 0)];
 
-		s[len] = 0;
+	/* check flags */
+	// add char for trailing '/'
+	if((flags & PF_DIR) && clast != '/')	++ext;
+
+	// do not copy trailing '/'
+	if((flags & PF_FILE) && clast == '/')	--len;
+
+	// add leading '/'
+	if((flags & PF_ABS) && cfirst != '/')	++ext;
+
+	// do not copy leading '/'
+	if((flags & PF_REL) && cfirst == '/'){
+		--len;
+		++name;
 	}
 
-	return s;
-}
+	/* allocate */
+	s = new char[len + ext + 1];
+	r = s;
 
-char *stralloc(char const *s){
-	return stralloc(s, strlen(s));
-}
+	if(s == 0)
+		return 0;
 
-char *diralloc(char const *name, unsigned int len){
-	char *s;
+	/* terminate string */
+	s[len + ext] = 0;
 
+	/* add leading '/' if name is not an absolute path that it is supposed to be */
+	if((flags & PF_ABS) && cfirst != '/'){
+		s[0] = '/';
+		s++;
+	}
 
-	if(len != 0 && name != 0 && name[len - 1] != '/'){
-		s = stralloc(name, len + 1);
+	/* copy name */
+	if(name)	strncpy(s, name, len);
+	else		s[0] = 0;
+
+	/* add trailing '/' if its missing */
+	if((flags & PF_DIR) && clast != '/')
 		s[len] = '/';
-		s[len + 1] = 0;
-	}
-	else
-		s = stralloc(name, len);
 
-	return s;
+	return r;
 }
 
-char *diralloc(char const *name){
-	return diralloc(name, strlen(name));
+char *stralloc(char const *name, int flags){
+	return stralloc(name, strlen(name), flags);
 }
 
 char *dirname(char const *base, char const *path){
