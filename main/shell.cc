@@ -62,11 +62,6 @@ int shell(char const *cmd, ...);
  * 			-1	error
  */
 int copy(char const *sbase, char const *sdir, char const *sfile, char const *dbase, char const *ddir, char const *dfile, cp_cmd_t cmd, bool indicate){
-	int fd_base,
-		fd_dir;
-	struct stat fs;
-
-
 	/* check arguments */
 	// init pointer
 	sbase = STRNULL(sbase);
@@ -86,50 +81,23 @@ int copy(char const *sbase, char const *sdir, char const *sfile, char const *dba
 	// user message
 	USER("%s %s%s%s -> %s%s%s ", cmd_txt[cmd], sbase, sdir, sfile, dbase, ddir, dfile);
 
-	// check src base
-	if(sbase[0] != 0){
-		fd_base = open(sbase, O_RDONLY);
+	// check src path
+	switch(ftype(sbase, sdir, sfile)){
+	case FTYPE_ERR_BASE:
+		USERERR("%s: %s", sbase, strerror(errno));
+		return -1;
 
-		if(fd_base == -1){
-			USERERR("%s: %s", sbase, strerror(errno));
-			return -1;
-		}
+	case FTYPE_ERR_DIR:
+		USERERR("%s%s: %s", sbase, sdir, strerror(errno));
+		return -1;
+
+	case FTYPE_ERR_FILE:
+		USERERR("%s%s%s: %s", sbase, sdir, sfile, strerror(errno));
+		return -1;
+
+	default:
+		break;
 	}
-
-	// check src directory
-	if(sbase[0] == 0){
-		// no base directory supplied
-		if(sdir[0] == 0)	fd_dir = open("./", O_RDONLY);
-		else				fd_dir = open(sdir, O_RDONLY);
-
-		if(fd_dir == -1){
-			USERERR("%s: %s", sdir, strerror(errno));
-			return -1;
-		}
-	}
-	else{
-		// open within base directory
-		if(sdir[0] == 0)	fd_dir = openat(fd_base, "./", O_RDONLY);
-		else				fd_dir = openat(fd_base, sdir, O_RDONLY);
-
-		close(fd_base);
-
-		if(fd_dir == -1){
-			USERERR("%s: %s", sdir, strerror(errno));
-			return -1;
-		}
-	}
-
-	// check src file, if it doesn't end on '*'
-	if(strlen(sfile) == 0 || sfile[strlen(sfile) - 1] != '*'){
-		if(fstatat(fd_dir, sfile, &fs, 0) != 0){
-			USERERR("%s%s%s: %s", sbase, sdir, sfile, strerror(errno));
-			close(fd_dir);
-			return -1;
-		}
-	}
-
-	close(fd_dir);
 
 	/* perform copy */
 	// return if only indicating action
@@ -283,31 +251,51 @@ int tar(char const *mode, char const *archive, char const *dir, char const *opt,
 	return 0;
 }
 
-ftype_t ftype(char const *path, char const *file){
-	int fd;
+ftype_t ftype(char const *base, char const *dir, char const *file){
+	int fd_base,
+		fd_dir;
 	struct stat fs;
 
 
-	if(path == 0 || file == 0)
-		return FTYPE_ERROR;
+	base = STRNULL(base);
+	dir = STRNULL(dir);
+	file = STRNULL(file);
 
-	// open path
-	if(path[0] == 0)	fd = open("./", O_RDONLY);
-	else				fd = open(path, O_RDONLY);
+	// open base directory
+	if(base[0] != 0){
+		fd_base = open(base, O_RDONLY);
 
-	if(fd == -1){
-		ERROR("%s: %s\n", path, strerror(errno));
-		return FTYPE_ERROR;
+		if(fd_base == -1)
+			return FTYPE_ERR_BASE;
 	}
 
-	// get file stat
-	if(fstatat(fd, file, &fs, 0) != 0){
-		ERROR("%s%s: %s\n", path, file, strerror(errno));
-		close(fd);
-		return FTYPE_ERROR;
+	// open directory
+	if(base[0] == 0){
+		// no base directory supplied
+		if(dir[0] == 0)		fd_dir = open("./", O_RDONLY);
+		else				fd_dir = open(dir, O_RDONLY);
+
+		if(fd_dir == -1)
+			return FTYPE_ERR_DIR;
+	}
+	else{
+		// open within base directory
+		if(dir[0] == 0)		fd_dir = openat(fd_base, "./", O_RDONLY);
+		else				fd_dir = openat(fd_base, dir, O_RDONLY);
+
+		close(fd_base);
+
+		if(fd_dir == -1)
+			return FTYPE_ERR_DIR;
 	}
 
-	close(fd);
+	// open file
+	if(fstatat(fd_dir, file, &fs, 0) != 0){
+		close(fd_dir);
+		return FTYPE_ERR_FILE;
+	}
+
+	close(fd_dir);
 
 	if(fs.st_mode & S_IFDIR)	return FTYPE_DIR;
 	if(fs.st_mode & S_IFREG)	return FTYPE_FILE;
@@ -335,6 +323,10 @@ int file_write(char const *file, char const *flags, char const *fmt, ...){
 }
 
 int diff(char const *sbase, char const *sdir, char const *sfile, char const *dbase, char const *ddir, char const *dfile){
+	char const *difftool;
+	int r;
+
+
 	/* check arguments */
 	// init pointer
 	sbase = STRNULL(sbase);
@@ -355,7 +347,28 @@ int diff(char const *sbase, char const *sdir, char const *sfile, char const *dba
 	USER("diff %s%s%s against %s%s%s ", sbase, sdir, sfile, dbase, ddir, dfile);
 
 	/* perform diff */
-	if(SHELL("%s \"%s %s%s%s %s%s%s\"", CONFIG_TERMINAL, CONFIG_DIFF_TOOL, sbase, sdir, sfile, dbase, ddir, dfile) != 0){
+	switch(ftype(sbase, sdir, sfile)){
+	case FTYPE_FILE:
+	case FTYPE_OTHER:
+		difftool = CONFIG_DIFF_TOOL_FILE;
+		break;
+
+	case FTYPE_DIR:
+		difftool = CONFIG_DIFF_TOOL_DIR;
+		break;
+
+	default:
+		USERERR("%s%s%s: %s", sbase, sdir, sfile, strerror(errno));
+		return -1;
+	}
+
+	r = SHELL("%s \"%s %s%s%s %s%s%s ; echo -e '\n" FG_GREEN "done" RESET_ATTR " <press any key to continue>' ; read -sn1 x\"",
+			CONFIG_TERMINAL, difftool,
+			sbase, sdir, sfile,
+			dbase, ddir, dfile
+	);
+
+	if(r != 0){
 		USERERR("%s", errstr);
 		return -1;
 	}

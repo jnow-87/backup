@@ -10,7 +10,9 @@ typedef enum{
 } cp_cmd_t;
 
 typedef enum{
-	FTYPE_ERROR = -1,
+	FTYPE_ERR_FILE = -3,
+	FTYPE_ERR_DIR = -2,
+	FTYPE_ERR_BASE = -1,
 	FTYPE_FILE = 1,
 	FTYPE_DIR,
 	FTYPE_OTHER,
@@ -25,7 +27,7 @@ int mkdir(char const *base, char const *dir, bool indicate);
 int tar(char const *mode, char const *archive, char const *dir, char const *opt, bool indicate);
 int diff(char const *sbase, char const *sdir, char const *sfile, char const *dbase, char const *ddir, char const *dfile);
 
-ftype_t ftype(char const *path, char const *file);
+ftype_t ftype(char const *base, char const *dir, char const *file);
 int file_write(char const *file, char const *flags, char const *fmt, ...);
 
 

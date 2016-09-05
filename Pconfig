@@ -32,8 +32,12 @@ config MV_ARGS
 	string "mv command arguments"
 	default ""
 
-config DIFF_TOOL
-	string "diff tool"
+config DIFF_TOOL_FILE
+	string "diff tool for file"
+	default "vimdiff"
+
+config DIFF_TOOL_DIR
+	string "diff tool for directories"
 	default "vimdiffdir"
 
 config TERMINAL

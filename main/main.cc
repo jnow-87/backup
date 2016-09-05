@@ -49,7 +49,7 @@ int main(int argc, char **argv){
 	tcsetattr(0, TCSAFLUSH, &term_s);
 
 	/* untar archive if restore from archive */
-	if(argv::restore && ftype("", argv::archive) == FTYPE_FILE){
+	if(argv::restore && ftype("", "", argv::archive) == FTYPE_FILE){
 		// force default tmp-dir to be used, to avoid extrating
 		// the backup archive to the default directory while using
 		// the directory from the config file afterwards
@@ -70,7 +70,7 @@ int main(int argc, char **argv){
 
 	/* parse config file */
 	if(argv::restore){
-		switch(ftype("", argv::archive)){
+		switch(ftype("", "", argv::archive)){
 		case FTYPE_DIR:
 			snprintf(name, MAXLEN, "%s%sconfig.bc", argv::archive, (argv::archive[strlen(argv::archive) - 1] != '/' ? "/" : ""));
 
@@ -87,6 +87,7 @@ int main(int argc, char **argv){
 			break;
 
 		default:
+			ERROR("%s: %s\n", argv::archive, strerror(errno));
 			goto cleanup;
 		}
 	}

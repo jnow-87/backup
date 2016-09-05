@@ -78,7 +78,11 @@ void handle_file(char const *base, dir_t *dir, file_t *file, bool indicate){
 	while(!file_done){
 		// get user selection
 		if(!(copy_all || move_all || diff_all || skip_all)){
-			c = uinput("%s%s: copy/all [c/C], move/all [m/M], diff/all [d/D], ship/all [s/S]\n",
+			c = uinput("%s%s: "
+					   "copy/all " BOLD "[c/C]" RESET_ATTR ", "
+					   "move/all " BOLD "[m/M]" RESET_ATTR ", "
+					   "diff/all " BOLD "[d/D]" RESET_ATTR ", "
+					   "ship/all " BOLD "[s/S]" RESET_ATTR "\n",
 					   "cCmMdDsS",
 					   dir->path, file->name
 			);
