@@ -32,7 +32,7 @@
 
 /* prototypes */
 bool yesno(char const *text);
-
+char uinput(char const *text, char const *valid, ...);
 
 
 #endif // UI_H

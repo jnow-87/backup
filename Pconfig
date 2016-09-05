@@ -32,6 +32,14 @@ config MV_ARGS
 	string "mv command arguments"
 	default ""
 
+config DIFF_TOOL
+	string "diff tool"
+	default "vimdiffdir"
+
+config TERMINAL
+	string "terminal"
+	default "xterm -e"
+
 choice
 	prompt "Build type"
 

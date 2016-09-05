@@ -55,6 +55,10 @@ int main(int argc, char **argv){
 		// the directory from the config file afterwards
 		argv::set.tmp_dir = 1;
 
+		/* remove tmp directory */
+		if(rmdir(argv::tmp_dir, false) != 0)
+			goto cleanup;
+
 		if(mkdir("", argv::tmp_dir, false) != 0)
 			goto cleanup;
 
@@ -69,6 +73,13 @@ int main(int argc, char **argv){
 		switch(ftype("", argv::archive)){
 		case FTYPE_DIR:
 			snprintf(name, MAXLEN, "%s%sconfig.bc", argv::archive, (argv::archive[strlen(argv::archive) - 1] != '/' ? "/" : ""));
+
+			// ensure restore() can use argv::tmp_dir as source
+			if(argv::tmp_dir)
+				delete argv::tmp_dir;
+
+			argv::tmp_dir = stralloc(argv::archive, PF_DIR);
+			argv::set.tmp_dir = 1;
 			break;
 
 		case FTYPE_FILE:
@@ -121,8 +132,8 @@ int main(int argc, char **argv){
 
 	USERHEAD("[cleaning up]");
 
-	/* delete tmp directory */
-	if(!cfg->preserve)
+	/* delete tmp directory if its not the recovery archive */
+	if(!cfg->preserve && (!argv::restore || (argv::restore && strncmp(cfg->tmp_dir, argv::archive, strlen(argv::archive)) != 0)))
 		rmdir(cfg->tmp_dir, cfg->indicate);
 
 	/* flush buffers */

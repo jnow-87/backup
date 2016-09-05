@@ -24,22 +24,22 @@
 
 	/* option description table */
 	static opt_desc_t const desc[] = {
-		{ .id = OPT_LOG_FILE,		.long_name = "--log-file",		.short_name = "-l", .arg = "<file>",	.help = "set log file to <file>" },
-		{ .id = OPT_VERBOSE,		.long_name = "--verbose",		.short_name = "-v", .arg = "<level>",	.help =	"increase output verbosity" },
-		{ .id = OPT_CONFIG_FILE,	.long_name = "--config-file",	.short_name = "-f",	.arg = "<file>",	.help = "use <file> as configuration file" },
-		{ .id = OPT_CONFIG,			.long_name = "--config",		.short_name = "-c",	.arg = "<name>",	.help = "apply configuration <name>" },
-		{ .id = OPT_OUT_DIR,		.long_name = "--out",			.short_name = "-o",	.arg = "<path>",	.help = "store temporary files to <path>" },
-		{ .id = OPT_TMP_DIR,		.long_name = "--tmp",			.short_name = "-t",	.arg = "<path>",	.help = "store temporary files to <path>" },
-		{ .id = OPT_RESTORE,		.long_name = "--restore",		.short_name = "-r",	.arg = "<archive>",	.help = "restore backup from <archive> or <path>" },
-		{ .id = OPT_INDICATE,		.long_name = "--indicate",		.short_name = "-i",	.arg = "",			.help = "indicate modifications but do not execute" },
-		{ .id = OPT_ARCHIVE,		.long_name = "--archive",		.short_name = "-a",	.arg = "",			.help = "create output archive in output directory" },
-		{ .id = OPT_PRESERVE,		.long_name = "--preserve",		.short_name = "-p",	.arg = "",			.help = "preserve temporary files" },
-		{ .id = OPT_HELP,			.long_name = "--help",			.short_name = "-h",	.arg = "",			.help = "print this help message" },
-		{ .id = OPT_VERSION,		.long_name = "--version",		.short_name = "",	.arg = "",			.help = "print version tag and git hash" },
-		{ .id = OPT_NOCONFIG,		.long_name = "--noconfig",		.short_name = "",	.arg = "",			.help = "do not backup/restore config files (files without rsync-dir)" },
-		{ .id = OPT_DOCONFIG,		.long_name = "--doconfig",		.short_name = "",	.arg = "",			.help = "backup/restore config files (files without rsync-dir)" },
-		{ .id = OPT_NODATA,			.long_name = "--nodata",		.short_name = "",	.arg = "",			.help = "do not backup/restore data files (files with rsync-dir)" },
-		{ .id = OPT_DODATA,			.long_name = "--dodata",		.short_name = "",	.arg = "",			.help = "backup/restore data files (files with rsync-dir)" },
+		{ .id = OPT_LOG_FILE,		.long_name = "--log-file",		.short_name = "-l", .arg = "<file>",				.help = "set log file to <file>" },
+		{ .id = OPT_VERBOSE,		.long_name = "--verbose",		.short_name = "-v", .arg = "<level>",				.help =	"increase output verbosity" },
+		{ .id = OPT_CONFIG_FILE,	.long_name = "--config-file",	.short_name = "-f",	.arg = "<file>",				.help = "use <file> as configuration file" },
+		{ .id = OPT_CONFIG,			.long_name = "--config",		.short_name = "-c",	.arg = "<name>",				.help = "apply configuration <name>" },
+		{ .id = OPT_OUT_DIR,		.long_name = "--out",			.short_name = "-o",	.arg = "<path>",				.help = "store temporary files to <path>" },
+		{ .id = OPT_TMP_DIR,		.long_name = "--tmp",			.short_name = "-t",	.arg = "<path>",				.help = "store temporary files to <path>" },
+		{ .id = OPT_RESTORE,		.long_name = "--restore",		.short_name = "-r",	.arg = "<archive> | <path>",	.help = "restore backup from <archive> or <path>" },
+		{ .id = OPT_INDICATE,		.long_name = "--indicate",		.short_name = "-i",	.arg = "",						.help = "indicate modifications but do not execute" },
+		{ .id = OPT_ARCHIVE,		.long_name = "--archive",		.short_name = "-a",	.arg = "",						.help = "create output archive in output directory" },
+		{ .id = OPT_PRESERVE,		.long_name = "--preserve",		.short_name = "-p",	.arg = "",						.help = "preserve temporary files" },
+		{ .id = OPT_HELP,			.long_name = "--help",			.short_name = "-h",	.arg = "",						.help = "print this help message" },
+		{ .id = OPT_VERSION,		.long_name = "--version",		.short_name = "",	.arg = "",						.help = "print version tag and git hash" },
+		{ .id = OPT_NOCONFIG,		.long_name = "--noconfig",		.short_name = "",	.arg = "",						.help = "do not backup/restore config files (files without rsync-dir)" },
+		{ .id = OPT_DOCONFIG,		.long_name = "--doconfig",		.short_name = "",	.arg = "",						.help = "backup/restore config files (files without rsync-dir)" },
+		{ .id = OPT_NODATA,			.long_name = "--nodata",		.short_name = "",	.arg = "",						.help = "do not backup/restore data files (files with rsync-dir)" },
+		{ .id = OPT_DODATA,			.long_name = "--dodata",		.short_name = "",	.arg = "",						.help = "backup/restore data files (files with rsync-dir)" },
 	};
 %}
 

@@ -139,6 +139,10 @@ int copy(char const *sbase, char const *sdir, char const *sfile, char const *dba
 	}
 
 	// create target directory
+	// FIXME
+	// 	dbase/ddir is not sufficient if dfile does contain a directory part
+	// 	use dirname instean
+	// 	remove dirname from backup.cc and restore.cc
 	if(SHELL("mkdir -p %s%s", dbase, ddir) != 0){
 		USERERR("%s", errstr);
 		return -1;
@@ -326,6 +330,37 @@ int file_write(char const *file, char const *flags, char const *fmt, ...){
 	va_end(lst);
 
 	fclose(fp);
+
+	return 0;
+}
+
+int diff(char const *sbase, char const *sdir, char const *sfile, char const *dbase, char const *ddir, char const *dfile){
+	/* check arguments */
+	// init pointer
+	sbase = STRNULL(sbase);
+	sdir = STRNULL(sdir);
+	sfile = STRNULL(sfile);
+	dbase = STRNULL(dbase);
+	ddir = STRNULL(ddir);
+	dfile = STRNULL(dfile);
+
+	// avoid double '/'
+	if(sbase[0] != 0 && sdir[0] == '/')
+		++sdir;
+
+	if(dbase[0] != 0 && ddir[0] == '/')
+		++ddir;
+
+	// user message
+	USER("diff %s%s%s against %s%s%s ", sbase, sdir, sfile, dbase, ddir, dfile);
+
+	/* perform diff */
+	if(SHELL("%s \"%s %s%s%s %s%s%s\"", CONFIG_TERMINAL, CONFIG_DIFF_TOOL, sbase, sdir, sfile, dbase, ddir, dfile) != 0){
+		USERERR("%s", errstr);
+		return -1;
+	}
+
+	USEROK();
 
 	return 0;
 }

@@ -1,5 +1,7 @@
 #include <common/log.h>
 #include <unistd.h>
+#include <stdarg.h>
+#include <string.h>
 
 
 /* global functions */
@@ -18,4 +20,27 @@ bool yesno(char const *text){
 	if(c == 'y' || c == 'Y')
 		return true;
 	return false;
+}
+
+char uinput(char const *text, char const *valid, ...){
+	char c;
+	va_list lst;
+
+
+	if(text != 0){
+		va_start(lst, valid);
+		VUSER(text, lst);
+		va_end(lst);
+	}
+	else
+		ERROR("invalid text\n");
+
+	while(1){
+		if(fread(&c, 1, 1, stdin) == 1){
+			if(strchr(valid, c) != 0)
+				return c;
+		}
+		else
+			usleep(100000);
+	}
 }
