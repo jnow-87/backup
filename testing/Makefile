@@ -1,6 +1,6 @@
 # target calling all test cases
 .PHONY: testing-all
-testing-all: testing-backup
+testing-all: testing-backup testing-restore
 
 
 ####
@@ -12,6 +12,9 @@ RESET_ATTR := "\033[0m"
 define testmsg
 	$(echo) $(FG) "\n\n\t ***" $(1) "***\n\n" $(RESET_ATTR)
 endef
+
+# global config
+backup-bin := $(build_tree)/main/backup
 
 
 ##################
@@ -31,7 +34,6 @@ backup-sh-cfg := $(loc_src_tree)/backup.conf
 backup-sh-out := /tmp/old-out
 backup-sh-rsync := /tmp/old-rsync
 
-backup-bin := $(build_tree)/main/backup
 backup-bin-cfg :=$(loc_src_tree)/backup.bc
 backup-bin-out := /tmp/new-out
 backup-bin-rsync := /tmp/new-rsync
@@ -50,3 +52,30 @@ testing-backup:
 	diff -rq $(backup-sh-out) $(backup-bin-out); exit 0
 	$(call testmsg,"diff rsync directories")
 	diff -rq $(backup-sh-rsync) $(backup-bin-rsync); exit 0
+
+
+####
+## restore
+####
+
+# config
+res-cfg := $(loc_src_tree)/restore.bc
+res-chroot-arch := $(loc_src_tree)/chroot.tar.gz
+res-out := /tmp/restore/out
+res-chroot := /tmp/restore-chroot
+res-chroot-cmp := /tmp/restore-chroot-cmp
+
+.PHONY: testing-restore
+testing-restore:
+	$(rm) $(res-tmp) $(res-chroot)
+	$(mkdir) $(res-chroot) $(res-chroot-cmp)
+	$(call testmsg,"untar chroot")
+	tar xzf $(res-chroot-arch) -C $(res-chroot)
+	tar xzf $(res-chroot-arch) -C $(res-chroot-cmp)
+	$(call testmsg,"backup chroot")
+	$(backup-bin) -f $(res-cfg) -p
+	$(rm) $(res-chroot)
+	$(call testmsg,"restore")
+	$(backup-bin) -r $(res-out)
+	$(call testmsg,"diff" $(res-chroot) "and" $(res-chroot-cmp))
+	diff -rq $(res-chroot) $(res-chroot-cmp)

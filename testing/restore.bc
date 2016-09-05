@@ -1,0 +1,21 @@
+config default = {
+	.archive = 0,
+	.indicate = 0,
+	.log-file = "/tmp/restore/backup.log",
+	.preserve = 1,
+	.verbose = 1,
+	.rsync-dir = "/tmp/restore/rsync",
+	.out-dir = "/tmp/restore/out",
+	.tmp-dir = "/tmp/restore/tmp"
+};
+
+/* first dir */
+dir "/tmp/restore-chroot" = {
+	.file = { .name = "vimrc"},
+	.file = { .name = ".bashrc" },
+	.file = { .name = ".vim", .rsync-dir = "vim" }
+};
+
+dir "/tmp/restore-chroot" = {
+	.file = { .name = ".gitconfig" }
+};
