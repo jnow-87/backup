@@ -109,7 +109,8 @@ int copy(char const *sbase, char const *sdir, char const *sfile, char const *dba
 	}
 	else{
 		// open within base directory
-		fd_dir = openat(fd_base, sdir, O_RDONLY);
+		if(sdir[0] == 0)	fd_dir = openat(fd_base, "./", O_RDONLY);
+		else				fd_dir = openat(fd_base, sdir, O_RDONLY);
 
 		close(fd_base);
 
