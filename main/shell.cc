@@ -308,6 +308,11 @@ ftype_t ftype(char const *base, char const *dir, char const *file){
 	}
 
 	// open file
+	if(file[0] != 0 && file[strlen(file) - 1] == '*'){
+		close(fd_dir);
+		return FTYPE_OTHER;
+	}
+
 	if(fstatat(fd_dir, file, &fs, 0) != 0){
 		close(fd_dir);
 		return FTYPE_ERR_FILE;
