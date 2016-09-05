@@ -16,9 +16,6 @@ using namespace std;
 
 
 /* macros */
-#define PATHCONCAT(base, dir) \
-	(((dir) != 0 && (dir)[0] == '/') ? "" : STRNULL(base)), STRNULL(dir)
-
 #define SHELL(cmd, ...) \
 	shell(cmd " 2>&1", ##__VA_ARGS__)
 
@@ -49,40 +46,89 @@ int shell(char const *cmd, ...);
 
 
 /* global functions */
-int copy(char const *src_dir, char const *src_file, char const *dst_base, char const *dst_dir, char const *dst_file, cp_cmd_t cmd, bool indicate){
-	int fd;
+/**
+ * \brief	call shell copy/move command
+ *
+ * \param	sbase		source base (relative | absolute)
+ * \param	sdir		source directory (relative | absolute)
+ * \param	sfile		source file (relative)
+ * \param	dbase		destination base (relative | absolute)
+ * \param	ddir		destination directory (relative | absolute)
+ * \param	dfile		destination file (relative)
+ * \param	cmd			command to be called (copy, move, rsync)
+ * \param	indicate	only print what would be execute, without actually executing the shell commands
+ *
+ * \return	0	success
+ * 			-1	error
+ */
+int copy(char const *sbase, char const *sdir, char const *sfile, char const *dbase, char const *ddir, char const *dfile, cp_cmd_t cmd, bool indicate){
+	int fd_base,
+		fd_dir;
 	struct stat fs;
 
 
-	USER("%s %s%s -> %s%s%s ", cmd_txt[cmd], PATHCONCAT(src_dir, src_file), PATHCONCAT(dst_base, dst_dir), STRNULL(dst_file));
-
 	/* check arguments */
-	// pointer
-	if(src_dir == 0 || src_file == 0 || dst_dir == 0 || (dst_dir[0] != '/' && dst_base == 0) || dst_file == 0){
-		USERERR("null string argument");
-		return -1;
-	}
+	// init pointer
+	sbase = STRNULL(sbase);
+	sdir = STRNULL(sdir);
+	sfile = STRNULL(sfile);
+	dbase = STRNULL(dbase);
+	ddir = STRNULL(ddir);
+	dfile = STRNULL(dfile);
 
-	// check src directory
-	if(src_file[0] == '/')		fd = open("/", O_RDONLY);
-	else if(src_dir[0] == 0)	fd = open("./", O_RDONLY);
-	else						fd = open(src_dir, O_RDONLY);
+	// avoid double '/'
+	if(sbase[0] != 0 && sdir[0] == '/')
+		++sdir;
 
-	if(fd == -1){
-		USERERR("%s: %s", src_dir, strerror(errno));
-		return -1;
-	}
+	if(dbase[0] != 0 && ddir[0] == '/')
+		++ddir;
 
-	// check src file, if it doesn't end on '*'
-	if(src_file[strlen(src_file) - 1] != '*'){
-		if(fstatat(fd, src_file, &fs, 0) != 0){
-			USERERR("%s%s: %s", PATHCONCAT(src_dir, src_file), strerror(errno));
-			close(fd);
+	// user message
+	USER("%s %s%s%s -> %s%s%s ", cmd_txt[cmd], sbase, sdir, sfile, dbase, ddir, dfile);
+
+	// check src base
+	if(sbase[0] != 0){
+		fd_base = open(sbase, O_RDONLY);
+
+		if(fd_base == -1){
+			USERERR("%s: %s", sbase, strerror(errno));
 			return -1;
 		}
 	}
 
-	close(fd);
+	// check src directory
+	if(sbase[0] == 0){
+		// no base directory supplied
+		if(sdir[0] == 0)	fd_dir = open("./", O_RDONLY);
+		else				fd_dir = open(sdir, O_RDONLY);
+
+		if(fd_dir == -1){
+			USERERR("%s: %s", sdir, strerror(errno));
+			return -1;
+		}
+	}
+	else{
+		// open within base directory
+		fd_dir = openat(fd_base, sdir, O_RDONLY);
+
+		close(fd_base);
+
+		if(fd_dir == -1){
+			USERERR("%s: %s", sdir, strerror(errno));
+			return -1;
+		}
+	}
+
+	// check src file, if it doesn't end on '*'
+	if(strlen(sfile) == 0 || sfile[strlen(sfile) - 1] != '*'){
+		if(fstatat(fd_dir, sfile, &fs, 0) != 0){
+			USERERR("%s%s%s: %s", sbase, sdir, sfile, strerror(errno));
+			close(fd_dir);
+			return -1;
+		}
+	}
+
+	close(fd_dir);
 
 	/* perform copy */
 	// return if only indicating action
@@ -92,13 +138,13 @@ int copy(char const *src_dir, char const *src_file, char const *dst_base, char c
 	}
 
 	// create target directory
-	if(SHELL("mkdir -p %s%s", PATHCONCAT(dst_base, dst_dir)) != 0){
+	if(SHELL("mkdir -p %s%s", dbase, ddir) != 0){
 		USERERR("%s", errstr);
 		return -1;
 	}
 
 	// issue command
-	if(SHELL("%s %s%s %s%s%s", cmd_str[cmd], PATHCONCAT(src_dir, src_file), PATHCONCAT(dst_base, dst_dir), dst_file) != 0){
+	if(SHELL("%s %s%s%s %s%s%s", cmd_str[cmd], sbase, sdir, sfile, dbase, ddir, dfile) != 0){
 		USERERR("%s", errstr);
 		return -1;
 	}
@@ -114,14 +160,13 @@ int unlink(char const *dir, char const *file, bool indicate){
 
 
 	ret = -1;
-	USER("remove %s%s ", STRNULL(dir), STRNULL(file));
-
 	/* check arguments */
-	// pointer
-	if(dir == 0 || file == 0){
-		USERERR("null string argument");
-		return -1;
-	}
+	// init pointer
+	dir = STRNULL(dir);
+	file = STRNULL(file);
+
+	// user message
+	USER("remove %s%s ", dir, file);
 
 	// directory
 	fd = open(dir, O_RDONLY);
@@ -154,13 +199,12 @@ clean:
 }
 
 int rmdir(char const *dir, bool indicate){
-	USER("remove %s ", STRNULL(dir));
-
 	/* check arguments */
-	if(dir == 0){
-		USERERR("null string argument");
-		return -1;
-	}
+	// init pointer
+	dir = STRNULL(dir);
+
+	// user message
+	USER("remove %s ", STRNULL(dir));
 
 	/* perform removal */
 	if(indicate){
@@ -179,13 +223,17 @@ int rmdir(char const *dir, bool indicate){
 }
 
 int mkdir(char const *base, char const *dir, bool indicate){
-	USER("mkdir %s%s ", PATHCONCAT(base, dir));
-
 	/* check arguments */
-	if(base == 0 && dir == 0){
-		USERERR("null string argument");
-		return -1;
-	}
+	// init pointer
+	base = STRNULL(base);
+	dir = STRNULL(dir);
+
+	// avoid double '/'
+	if(base[0] != 0 && dir[0] == '/')
+		++dir;
+
+	// user message
+	USER("mkdir %s%s ", base, dir);
 
 	/* perform mkdir */
 	if(indicate){
@@ -193,7 +241,7 @@ int mkdir(char const *base, char const *dir, bool indicate){
 		return 0;
 	}
 
-	if(SHELL("mkdir -p %s%s", PATHCONCAT(base, dir)) != 0){
+	if(SHELL("mkdir -p %s%s", base, dir) != 0){
 		USERERR("%s", errstr);
 		return -1;
 	}
@@ -204,13 +252,15 @@ int mkdir(char const *base, char const *dir, bool indicate){
 }
 
 int tar(char const *mode, char const *archive, char const *dir, char const *opt, bool indicate){
-	USER("tar %s %s -C %s %s ", STRNULL(mode), STRNULL(archive), STRNULL(dir), STRNULL(opt));
-
 	/* check arguments */
-	if(mode == 0 || dir == 0 || archive == 0 || opt == 0){
-		USERERR("null string argument");
-		return -1;
-	}
+	// init pointer
+	mode = STRNULL(mode);
+	archive = STRNULL(archive);
+	dir = STRNULL(dir);
+	opt = STRNULL(opt);
+
+	// user message
+	USER("tar %s %s -C %s %s ", mode, archive, dir, opt);
 
 	/* perform tar */
 	if(indicate){
@@ -237,9 +287,8 @@ ftype_t ftype(char const *path, char const *file){
 		return FTYPE_ERROR;
 
 	// open path
-	if(file[0] == '/')		fd = open("/", O_RDONLY);
-	else if(path[0] == 0)	fd = open("./", O_RDONLY);
-	else					fd = open(path, O_RDONLY);
+	if(path[0] == 0)	fd = open("./", O_RDONLY);
+	else				fd = open(path, O_RDONLY);
 
 	if(fd == -1){
 		ERROR("%s: %s\n", path, strerror(errno));
@@ -248,7 +297,7 @@ ftype_t ftype(char const *path, char const *file){
 
 	// get file stat
 	if(fstatat(fd, file, &fs, 0) != 0){
-		ERROR("%s%s: %s\n", PATHCONCAT(path, file), strerror(errno));
+		ERROR("%s%s: %s\n", path, file, strerror(errno));
 		close(fd);
 		return FTYPE_ERROR;
 	}

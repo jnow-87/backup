@@ -18,7 +18,7 @@ typedef enum{
 
 
 /* prototypes */
-int copy(char const *src_dir, char const *src_file, char const *dst_base, char const *dst_dir, char const *dst_file, cp_cmd_t cmd, bool indicate);
+int copy(char const *sbase, char const *sdir, char const *sfile, char const *dbase, char const *ddir, char const *dfile, cp_cmd_t cmd, bool indicate);
 int unlink(char const *dir, char const *file, bool indicate);
 int rmdir(char const *dir, bool indicate);
 int mkdir(char const *base, char const *dir, bool indicate);

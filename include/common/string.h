@@ -12,9 +12,6 @@
 
 #define STRNULL(s)	((s) ? (s) : "")
 
-#define PATHCONCAT(base, dir) \
-	(((dir) != 0 && (dir)[0] == '/') ? "" : STRNULL(base)), STRNULL(dir)
-
 
 /* types */
 typedef enum{

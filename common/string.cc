@@ -66,11 +66,17 @@ char *dirname(char const *base, char const *path){
 	size_t i;
 
 
-	if(path == 0 || (path[0] != '/' && base == 0))
+	/* check arguments */
+	if(base == 0 || path == 0)
 		return 0;
 
-	if(path[0] == '/')	i = strlen(path);
-	else				i = strlen(base) + strlen(path);
+	/* allocate */
+	i = strlen(base) + strlen(path);
+
+	if(path[0] == '/'){
+		--i;
+		++path;
+	}
 
 	s = new char[i + 1];
 
@@ -78,12 +84,8 @@ char *dirname(char const *base, char const *path){
 		return 0;
 
 	/* concat strings */
-	if(path[0] != '/'){
-		strcpy(s, base);
-		strcpy(s + strlen(base), path);
-	}
-	else
-		strcpy(s, path);
+	strcpy(s, base);
+	strcpy(s + strlen(base), path);
 
 	/* identify the directory part */
 	// remove trailing '/'

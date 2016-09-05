@@ -33,7 +33,7 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 		return;
 
 	/* cp config to tmp directory */
-	if(copy("", argv::config_file, "", cfg->tmp_dir, "config.bc", CMD_COPY, cfg->indicate) != 0)
+	if(copy("", "", argv::config_file, "", cfg->tmp_dir, "config.bc", CMD_COPY, cfg->indicate) != 0)
 		return;
 
 	/* create backup.date in tmp directory */
@@ -46,7 +46,7 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 
 	USEROK();
 
-	if(copy("", "backup.date", "", cfg->tmp_dir, "", CMD_MOVE, cfg->indicate) != 0)
+	if(copy("", "", "backup.date", "", cfg->tmp_dir, "", CMD_MOVE, cfg->indicate) != 0)
 		return;
 
 	/* cp files w/o rsync directory */
@@ -56,9 +56,11 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 		list_for_each(dir_lst, dir){
 			list_for_each(dir->file_lst, file){
 				if(file->rsync_dir == 0){
+					// use dirname, avoid generating too many sub-directories when copying directories
+					// e.g. cp -r /base/dir/ /tmp/base/dir creates the output directory /tmp/base/dir/dir
 					dst = dirname(dir->path, file->name);
 
-					copy(dir->path, file->name, cfg->tmp_dir, (dst[0] == '/') ? dst + 1 : dst, "", CMD_COPY, cfg->indicate);
+					copy("", dir->path, file->name, cfg->tmp_dir, dst, "", CMD_COPY, cfg->indicate);
 
 					delete [] dst;
 				}
@@ -66,7 +68,7 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 		}
 
 		/* cp to out directory or generate archive */
-		if(mkdir(0, cfg->out_dir, cfg->indicate) != 0)
+		if(mkdir("", cfg->out_dir, cfg->indicate) != 0)
 			return;
 
 		if(cfg->archive){
@@ -77,7 +79,7 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 		}
 		else{
 			USERHEAD("[copy to output directory \"%s\"]", cfg->tmp_dir);
-			copy(cfg->tmp_dir, "*", "", cfg->out_dir, "", CMD_RSYNC, cfg->indicate);
+			copy("", cfg->tmp_dir, "*", "", cfg->out_dir, "", CMD_RSYNC, cfg->indicate);
 		}
 	}
 
@@ -88,7 +90,7 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 		list_for_each(dir_lst, dir){
 			list_for_each(dir->file_lst, file){
 				if(file->rsync_dir != 0)
-					copy(dir->path, file->name, cfg->rsync_dir, file->rsync_dir, "", CMD_RSYNC, cfg->indicate);
+					copy("", dir->path, file->name, cfg->rsync_dir, file->rsync_dir, "", CMD_RSYNC, cfg->indicate);
 			}
 		}
 	}
