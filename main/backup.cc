@@ -19,7 +19,6 @@
  */
 void backup(cfg_t *cfg, dir_t *dir_lst){
 	char name[MAXLEN];
-	char *dst;
 	dir_t *dir;
 	file_t *file;
 
@@ -55,15 +54,8 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 
 		list_for_each(dir_lst, dir){
 			list_for_each(dir->file_lst, file){
-				if(file->rsync_dir == 0){
-					// use dirname, avoid generating too many sub-directories when copying directories
-					// e.g. cp -r /base/dir/ /tmp/base/dir creates the output directory /tmp/base/dir/dir
-					dst = dirname(dir->path, file->name);
-
-					copy("", dir->path, file->name, cfg->tmp_dir, dst, "", CMD_COPY, cfg->indicate);
-
-					delete [] dst;
-				}
+				if(file->rsync_dir == 0)
+					copy("", dir->path, file->name, cfg->tmp_dir, dir->path, file->name, CMD_COPY, cfg->indicate);
 			}
 		}
 

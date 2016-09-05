@@ -64,16 +64,11 @@ void restore(cfg_t *cfg, dir_t *dir_lst){
 void handle_file(char const *base, dir_t *dir, file_t *file, bool indicate){
 	bool file_done;
 	char c,
-		 *dst,
 		 *sdir;
 
 
 	file_done = false;
 	sdir = (file->rsync_dir ? file->rsync_dir : dir->path);
-
-	// use dirname, avoid generating too many sub-directories when copying directories
-	// e.g. cp -r /base/dir/ /tmp/base/dir creates the output directory /tmp/base/dir/dir
-	dst = dirname(dir->path, file->name);
 
 	while(!file_done){
 		// get user selection
@@ -96,7 +91,7 @@ void handle_file(char const *base, dir_t *dir, file_t *file, bool indicate){
 			// fall through
 
 		case 'c':
-			copy(base, sdir, file->name, "", dst, "", CMD_COPY, indicate);
+			copy(base, sdir, file->name, "", dir->path, file->name, CMD_COPY, indicate);
 			file_done = true;
 			break;
 
@@ -106,7 +101,7 @@ void handle_file(char const *base, dir_t *dir, file_t *file, bool indicate){
 			// fall through
 
 		case 'm':
-			copy(base, sdir, file->name, "", dst, "", CMD_MOVE, indicate);
+			copy(base, sdir, file->name, "", dir->path, file->name, CMD_MOVE, indicate);
 			file_done = true;
 			break;
 
@@ -129,6 +124,4 @@ void handle_file(char const *base, dir_t *dir, file_t *file, bool indicate){
 			break;
 		}
 	}
-
-	delete dst;
 }

@@ -61,21 +61,21 @@ char *stralloc(char const *name, int flags){
 	return stralloc(name, strlen(name), flags);
 }
 
-char *dirname(char const *base, char const *path){
+char *dirname(char const *base, char const *dir, char const *file){
 	char *s;
 	size_t i;
 
 
-	/* check arguments */
-	if(base == 0 || path == 0)
-		return 0;
+	base = STRNULL(base);
+	dir = STRNULL(dir);
+	file = STRNULL(file);
 
 	/* allocate */
-	i = strlen(base) + strlen(path);
+	i = strlen(base) + strlen(dir) + strlen(file);;
 
-	if(path[0] == '/'){
+	if(base[0] != 0 && dir[0] == '/'){
 		--i;
-		++path;
+		++dir;
 	}
 
 	s = new char[i + 1];
@@ -85,7 +85,8 @@ char *dirname(char const *base, char const *path){
 
 	/* concat strings */
 	strcpy(s, base);
-	strcpy(s + strlen(base), path);
+	strcpy(s + strlen(base), dir);
+	strcpy(s + i - strlen(file), file);
 
 	/* identify the directory part */
 	// remove trailing '/'

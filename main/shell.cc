@@ -62,8 +62,14 @@ int shell(char const *cmd, ...);
  * 			-1	error
  */
 int copy(char const *sbase, char const *sdir, char const *sfile, char const *dbase, char const *ddir, char const *dfile, cp_cmd_t cmd, bool indicate){
+	char *dst;
+	ftype_t sftype;
+
+
 	/* check arguments */
 	// init pointer
+	dst = 0;
+
 	sbase = STRNULL(sbase);
 	sdir = STRNULL(sdir);
 	sfile = STRNULL(sfile);
@@ -82,7 +88,9 @@ int copy(char const *sbase, char const *sdir, char const *sfile, char const *dba
 	USER("%s %s%s%s -> %s%s%s ", cmd_txt[cmd], sbase, sdir, sfile, dbase, ddir, dfile);
 
 	// check src path
-	switch(ftype(sbase, sdir, sfile)){
+	sftype = ftype(sbase, sdir, sfile);
+
+	switch(sftype){
 	case FTYPE_ERR_BASE:
 		USERERR("%s: %s", sbase, strerror(errno));
 		return -1;
@@ -106,25 +114,35 @@ int copy(char const *sbase, char const *sdir, char const *sfile, char const *dba
 		return 0;
 	}
 
-	// create target directory
-	// FIXME
-	// 	dbase/ddir is not sufficient if dfile does contain a directory part
-	// 	use dirname instean
-	// 	remove dirname from backup.cc and restore.cc
-	if(SHELL("mkdir -p %s%s", dbase, ddir) != 0){
-		USERERR("%s", errstr);
-		return -1;
-	}
+	// create destination directory
+	dst = dirname(dbase, ddir, dfile);
 
-	// issue command
-	if(SHELL("%s %s%s%s %s%s%s", cmd_str[cmd], sbase, sdir, sfile, dbase, ddir, dfile) != 0){
-		USERERR("%s", errstr);
-		return -1;
+	if(dst == 0 || SHELL("mkdir -p %s", dst) != 0)
+		goto err;
+
+	// issue copy
+	if(sftype == FTYPE_DIR){
+		// copy directory, copy to dst to avoid creating a false directory,
+		// e.g. cp /src/dir /dst/dir would create /dst/dir/dir
+		if(SHELL("%s %s%s%s %s", cmd_str[cmd], sbase, sdir, sfile, dst) != 0)
+			goto err;
+	}
+	else{
+		// copy file
+		if(SHELL("%s %s%s%s %s%s%s", cmd_str[cmd], sbase, sdir, sfile, dbase, ddir, dfile) != 0)
+			goto err;
 	}
 
 	USEROK();
+	delete dst;
 
 	return 0;
+
+err:
+	USERERR("%s", errstr);
+	delete dst;
+
+	return -1;
 }
 
 int unlink(char const *dir, char const *file, bool indicate){
