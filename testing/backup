@@ -1,0 +1,649 @@
+#!/bin/bash
+
+
+# TODO
+#	check rsync operations
+#		--compare-dest=DIR for incremental backups every day
+
+
+# default directory configuration
+dir_home="/home"											# directory to check for user home-directories
+dir_tmp="/tmp/backup_tmp"									# tmp folder
+dir_out="/tmp/backup"										# output folder
+file_conf="/etc/backup.conf"								# configuration file
+file_backup="backup_$(date +%y.%m.%d_%H.%M.%S).tar.gz"		# name of tar archive
+file_log="/var/log/backup.log"
+
+# default options
+mode=""														# config mode to be used in combination with the given config file
+recover=""													# recovery mode
+debug=1														# debug level
+archive=0													# create archive or not
+indicate=0													# perform actions or only print actions
+preserve=0													# preserve temporary files
+
+# which files to handle
+handle_normal=1												# backup files without specific options
+handle_osub=1												# backup files with the osub file option
+
+# script arguments
+argv=()														# script arguments except $0
+
+# shell commands
+cmd_mkdir="mkdir -p"
+cmd_cp="cp -rau"
+cmd_mv="mv"
+cmd_rsync="rsync -rauAXH --delete" 
+cmd_tar="tar czf"
+cmd_untar="tar xzf"
+
+# global variables
+dir=()														# array of all directories, e.g. dir=('/' '/root' '/home/jan')
+declare -A dir_options										# comma separated list of options per entry in dir
+declare -A file												# hash with all files of a directory, e.g. file['/home/jan']=('.ssh' '.vim')
+declare -A nfiles											# number of entries in file, e.g. number of entries in file['/home/jan'] is nfiles['/home/jan']
+declare -A file_options										# comma separated list of options per file, being the combination of dir and file
+
+
+# print message depending on $debug
+function dbg(){
+	if [ $debug -ge $1 ];then
+		shift 1
+		echo -e $@
+		echo -E $@ | sed -r 's/\\033\[([0-9]{1,3}((;[0-9]{1,3})*)?)?[m|K]//g' >> $file_log	# strip colour code escape sequences
+	fi
+}
+
+# concatenate arguments to path
+function concat(){
+	file=$1
+
+	while [ $# -gt 1 ];do
+		shift 1
+		file=$(echo $file"/"$1 | tr -s '/')
+	done
+
+	echo $file
+}
+
+# require user input [y/N]
+# return 0 - yes
+#		 1 - no
+function yesno(){
+	echo $1 " [y/N]"
+	read -sn1 x
+
+	if [ "$x" != "y" -a "$x" != "Y" ];then
+		exit 0
+	fi
+}
+
+# copy $src to $dest
+#	if $indicate == 1, the file is not copied, only the action is printed
+function copy(){
+	cmd=$cmd_cp
+	cmd_txt="copy"
+	ret=0
+
+	while [ $# -gt 2 ];do
+		case $1 in
+		-r)
+			cmd=$cmd_rsync
+			cmd_txt="rsync"
+			shift 1
+		;;
+
+		-m)
+			cmd=$cmd_mv
+			cmd_txt="move"
+			shift 1
+		;;
+
+		*)
+			echo "invalid copy() argument \"$1\""
+			exit 1
+		;;
+		esac
+	done
+
+	src=$1
+	dest=$2
+
+	dbg 1 -n "$cmd_txt " $src "->" $dest
+
+	if [ $indicate -eq 0 ];then
+		# check if src and dest are not empty
+		if [ "$src" == "" -o "$dest" == "" ];then
+			o="either src or dest empty"
+			ret=1
+		fi
+
+		# check availability of src
+		if [ ! -e "$src" ];then
+			o="src does not exist"
+			ret=1
+		fi
+
+		if [ $ret -eq 0 ];then
+			if [ ! -f "$dest" ];then
+				$cmd_mkdir "$dest"
+			fi
+
+			$cmd "$src" "$dest" 2>>$file_log
+			ret=$?
+
+			if [ ! $ret -eq 0 ];then
+				o="check log file \"$file_log\""
+			fi
+		fi
+	fi
+
+	if [ $indicate -eq 1 ];then	dbg 1 "\033[33m   [INDICATE]\033[0m"
+	else if [ $ret -eq 0 ];then	dbg 1 "\033[32m   [OK]\033[0m"
+	else						dbg 1 "\033[31m   [ERR] ($o)\033[0m"
+	fi fi
+}
+
+# print help
+function help(){
+	printf "script: %s\n" $0
+	printf "usage: %s [options]\n" $(basename $0)
+	printf "options:\n"
+	printf "  %15s  %-20s %s\n" "-m" "<mode>" "mode to use for parsing cfg_<mode>: entries in the config file"
+	printf "  %15s  %-20s %s\n" "-c" "<backup.conf>" "configuration file"
+	printf "  %15s  %-20s %s\n" "-r" "<backup.tar.gz>" "restore file of <backup.tar.gz>"
+	printf "  %15s  %-20s %s\n" "-o" "<dir>" "output directory (config file option: \"dir_out\")"
+	printf "  %15s  %-20s %s\n" "-a" "" "create tar.gz archive, otherwise copy files to output directory (config file option: \"archive\")"
+	printf "  %15s  %-20s %s\n" "-i" "" "indicate modifications but do not execute (config file option: \"indicate\")"
+	printf "  %15s  %-20s %s\n" "--nonormal" "" "do not backup normal files (config file option: \"handle_normal\")"
+	printf "  %15s  %-20s %s\n" "--noosub" "" "do not backup osub files (config file option: \"handle_osub\")"
+	printf "  %15s  %-20s %s\n" "-p" "" "preserve temporary files (config file option: \"preserve\")"
+	printf "  %15s  %-20s %s\n" "-v" "<lvl>" "verbosity level (config file option: \"debug\")"
+	printf "  %15s  %-20s %s\n" "-h" "" "print this help message"
+
+	printf "\nconfiguration file syntax:\n"
+	printf "        # comment\n"
+	printf "        cfg:<option>=<value>\n\n"
+	printf "        dir[{dir_option,}]=path\n"
+	printf "            [{file_option,}] file\n\n"
+
+	printf "\n   directory options:\n"
+	printf "     %10s  %s\n" "" "not yet used"
+
+	printf "\n   file options:\n"
+	printf "     %10s  %s\n" "osub" "the file is not copied to the archive or output directory, instead the target directory is directly specified"
+
+	printf "\n   special directories:\n"
+	printf "     %10s  %s\n" "homes" "home directories of all users including /root\n"
+
+	exit 0
+}
+
+# parse arguments
+function parse_arg(){
+	# put all arguments (except $0) to argv for parsing it multiple times
+	while [ $# -gt 0 ];do
+		argv[${#argv[*]}]=$1
+		shift 1
+	done
+
+	# check if new config file is specified, if so parse it
+	for (( i=0; $i<${#argv[*]}; i++ ));do
+		if [ "${argv[$i]}" == "-c" ];then
+			let i=$i+1
+
+			if [ $i -lt ${#argv[*]} -a -e ${argv[$i]} ];then
+				file_conf=${argv[$i]}
+			else
+				echo -e "invalid -c argument\n"
+				help
+			fi
+
+		else if [ "${argv[$i]}" == "-m" ];then
+			let i=$i+1
+
+			if [ $i -lt ${#argv[*]} ];then
+				mode=${argv[$i]}
+			else
+				echo -e "invalid -m argument\n"
+				help
+			fi
+		fi fi
+	done
+
+	parse_config_arg
+
+
+	for (( i=0; $i<${#argv[*]}; i++ ));do
+		case ${argv[$i]} in
+		-r)
+			let i=$i+1
+			if [ ! $i -lt ${#argv[*]} ];then
+				echo -e "invalid -r argument\n"
+				help
+			fi
+
+			file_backup=${argv[$i]}
+
+			if [ -d $file_backup ];then
+				recover="dir"
+			else
+				recover="archive"
+			fi
+		;;
+
+		-o)
+			let i=$i+1
+			if [ ! $i -lt ${#argv[*]} ];then
+				echo -e "invalid -o argument\n"
+				help
+			fi
+
+			dir_out=${argv[$i]}
+		;;
+
+		-v)
+			let i=$i+1
+			if [ ! $i -lt ${#argv[*]} -o "$(echo ${argv[$i]} | grep '[[:digit:]]')" == "" ];then
+				debug=1
+			else
+				debug=${argv[$i]}
+			fi
+		;;
+
+		-a)
+			archive=1
+		;;
+
+		-i)
+			indicate=1
+			debug=1
+		;;
+
+		-p)
+			preserve=1
+		;;
+
+		-m)
+			# has already been handled
+			let i=$i+1
+		;;
+
+		-c)
+			# has already been handled
+			let i=$i+1
+		;;
+
+		-h)
+			help $0
+		;;
+
+		--noosub)
+			handle_osub=0
+		;;
+
+		--nonormal)
+			handle_normal=0
+		;;
+
+		*)
+			echo -e "invalid argument \""${argv[$i]}"\"\n"
+			help
+		esac
+	done
+
+	printf "  %20s: %s\n" "config file" $file_conf
+	printf "  %20s: %s\n" "log file" $file_log
+	printf "  %20s: %s\n" "tmp dir" $dir_tmp
+
+	if [ $archive -eq 0 ];then
+		printf "  %20s: %s\n\n" "output directory" $(concat $dir_out)
+	else
+		printf "  %20s: %s\n\n" "output file" $(concat $dir_out $file_backup)
+	fi
+
+	printf "  %20s: %s\n\n" "options" "recover=\"$recover\", debug=$debug, archive=$archive, indicate=$indicate, preserve=$preserve, handle_normal=$handle_normal, handle_osub=$handle_osub"
+}
+
+#parse configuration file looking for configuration parameters
+function parse_config_arg(){
+	dbg 2 "parsing config file \""$file_conf"\" using mode \033[35m[\"$mode\"\033[0m["
+	dbg 1 "\tselected mode: \033[35m\"$mode\"\033[0m"
+
+	yesno "continue?"
+
+
+	let cfg_len=${#mode}+5	# strlen of $mode + 5 for "cfg_ :"
+	echo 
+
+	# read file line by line
+	while read line
+	do
+		if [ "$line" == "" ];then
+			continue
+		
+		# ignore '#' comment lines
+		else if [ "${line:0:1}" == "#" ];then
+			dbg 2 "skip line" $line
+
+		else if [ "${line:0:4}" == "cfg:" -o "${line:0:$cfg_len}" == "cfg_$mode:" ];then
+			eval $(echo $line | cut -d ':' -f 2)	# match string after ':' and '#' and interpret it
+
+		# new directory
+		else
+			continue
+		fi fi fi
+	done < $file_conf
+}
+
+# parse configuration file building directory structure
+function parse_config_dir(){
+	dbg 2 "parsing config file \""$file_conf"\" building directory index"
+
+	# read file line by line
+	while read line
+	do
+		if [ "$line" == "" ];then
+			continue
+		fi
+
+		# new directory
+		if [ "${line:0:3}" == "dir" ];then
+			# parse directory
+			opt=$(echo $line | grep -oE '\[.{0,}\]' | tr -d '[]')		# extract options by matching string between []
+
+			if [ "$opt" != "" ];then		# if options are not empty use ] as separator to extract current directory
+				current_dir=$(echo $line | cut -d ']' -f 2 | cut -d '=' -f 2 | grep -Eo "[^[[:space:]]]{0,}.{0,}")
+			else							# else use = as separator to extract current directory
+				current_dir=$(echo $line | cut -d '=' -f 2 | grep -Eo "[^[[:space:]]]{0,}.{0,}")
+			fi
+
+			dir_lst=$current_dir
+
+			if [ "$current_dir" == "homes" ];then
+				dir_lst="/root
+						$(ls -1d $dir_home/*)"
+			fi
+
+			# if $current_dir == "homes"
+			#	iterate over all user directories (/root $dir_home/*) and only add
+			#	entries that are not yet part of $file, i.e. "${nfiles[]}"==""
+			while read x;do
+#			for x in $(echo $dir_lst";do
+				if [ "${nfiles["$x"]}" == "" ];then	# if new directory
+					dir[${#dir[*]}]=$x
+					dir_options["$x"]=$opt
+					nfiles["$x"]=0
+
+					dbg 2 "new dir: \"$x\"\toptions: \""${dir_options["$x"]}"\""
+
+				else								# if directory is already available
+					if [ "$opt" != "" ];then
+						if [ "${dir_options["$x"]}" == "" ];then
+							dir_options["$x"]=$opt
+						else
+							dir_options["$x"]+=","$opt
+						fi
+					fi
+				fi
+			done <<< "$dir_lst"
+
+		# ignore '#' comment lines
+		else if [ "${line:0:1}" == "#" ];then
+			dbg 2 "skip line" $line
+
+		# ignore 'cfg:'
+		else if [ "${line:0:3}" == "cfg" ];then
+			continue
+
+		# new file
+		else
+			opt=$(echo $line | grep -oE '\[.{0,}\]' | tr -d '[]')		# extract options by matching string between []
+			
+			# disable shell auto expansion
+			set -o noglob
+
+			# extract file name, cutting leading spaces
+			if [ "$opt" != "" ];then
+				file=$(echo $line | cut -d ']' -f 2 | grep -Eo "[^[[:space:]]]{0,}.{0,}")
+			else
+				file=$(echo $line | grep -Eo "[^[[:space:]]]{0,}.{0,}")
+			fi
+
+			# enable shell auto expansion
+			set +o noglob
+
+			# if $current_dir=="homes"
+			#	add file to all home directories
+			# else
+			#	only add to file[$current_dir]
+			if [ "$current_dir" == "homes" ];then
+				dir_lst="/root
+						$(ls -1d $dir_home/*)"
+
+				while read x;do
+					file["$x",${nfiles["$x"]}]=$file
+					file_options["$x",${nfiles["$x"]}]=$opt
+
+					dbg 2 "new file for dir \"$x\": \""${file["$x",${nfiles["$x"]}]}"\"\toptions: " ${file_options["$x",${nfiles["$x"]}]}
+
+					let nfiles["$x"]=${nfiles["$x"]}+1
+				done <<< "$dir_lst"
+			else
+				file["$current_dir",${nfiles["$current_dir"]}]=$file
+				file_options["$current_dir",${nfiles["$current_dir"]}]=$opt
+
+				dbg 2 "new file for dir \"$current_dir\": \""${file["$current_dir",${nfiles["$current_dir"]}]}"\"\toptions: " ${file_options["$current_dir",${nfiles["$current_dir"]}]}
+
+				let nfiles["$current_dir"]=${nfiles["$current_dir"]}+1
+			fi
+		fi fi fi
+	done < $file_conf
+
+	# print list of directories and files
+	dbg 2 "\nlist of directories" ${#dir[*]}
+	for (( i=0; $i<${#dir[*]}; i++ ));do
+		dbg 2 "dir: \"${dir[$i]}\"\n\toptions: \""${dir_options["${dir[$i]}"]}"\"\n"
+
+		for (( j=0; $j<${nfiles["${dir[$i]}"]}; j++ ));do
+			dbg 2 "\tfile: \""${file["${dir[$i]}",$j]}"\" [\""${file_options["${dir[$i]}",$j]}"\"]"
+		done
+
+		dbg 2 ""
+	done
+
+	yesno "continue?"
+}
+
+function archive(){
+	declare -A osub_src_lst				# src and dest lists for 'osub' files tp prevent
+	declare -A osub_dest_lst			# them from being deleted by rsync (see below)
+
+	dbg 2 "function: archive"
+
+	# parse backup configuration file $file_conf
+	parse_config_dir
+
+	# clean $dir_tmp
+	if [ $indicate -eq 0 ];then
+		rm -rf "$dir_tmp"
+		$cmd_mkdir "$dir_tmp"
+
+		# copy $file_conf to $dir_tmp
+		cp "$file_conf" "$dir_tmp"
+		echo $(date +%Y.%m.%d) "at" $(date +%H:%M:%S) > "$dir_tmp"/backup.date
+	fi
+
+	if [ $handle_normal -eq 1 ];then
+		dbg 1 "\033[35m[processing 'normal' files (files without specific file option)]\033[0m"
+	fi
+
+	# cp specified data of $file_conf to $dir_tmp
+	for (( i=0; $i<${#dir[*]}; i++ ));do
+		for (( j=0; $j<${nfiles[${dir[$i]}]}; j++ ));do
+			copy_this=1
+			opt=${file_options[${dir[$i]},$j]}
+
+			# disable shell auto expansion
+			set -o noglob
+
+			src=$(concat "${dir[$i]}" "${file[${dir[$i]},$j]}")
+
+			# enable shell auto expansion
+			set +o noglob
+
+			dest=$(concat "$dir_tmp" "$(dirname "$src")" "/")
+
+			# handle 'osub' file option
+			if [ "$(echo $opt | grep osub)" != "" ];then
+				osub=$(eval echo $opt | grep -oE "osub=[^,]{0,}" | cut -d '=' -f 2) # 'eval' is used to interpret relative locations, e.g. to $dir_out
+
+				osub_src_lst[${#osub_src_lst[*]}]=$src
+				osub_dest_lst[${#osub_dest_lst[*]}]=$(concat "$osub" "/")
+				copy_this=0
+			fi
+
+			if [ $handle_normal -eq 0 ];then
+				copy_this=0
+			fi
+
+			# copy if not prevented by one of the above options
+			if [ $copy_this -eq 1 ];then
+				copy "$src" "$dest"
+			fi
+		done
+	done
+
+	if [ $handle_normal -eq 1 ];then
+		# create archive in $dir_out
+		if [ $archive -eq 1 ];then
+			dbg 1 "\n\033[35m[create backup archive]\033[0m"
+
+			if [ $indicate -eq 0 ];then
+				if [ ! -e $dir_out ];then
+					$cmd_mkdir "$dir_out"
+				fi
+
+				pushd "$dir_tmp" 1> /dev/null
+				$cmd_tar "../$file_backup" .
+
+				popd 1> /dev/null
+				copy -m "$dir_tmp/../$file_backup" "$dir_out"
+			fi
+
+		# rsync $dir_tmp to $dir_out
+		else
+			dbg 1 "\n\033[35m[copy temporary directory to output directory]\033[0m"
+			copy -r "$dir_tmp/." "$dir_out"
+		fi
+	fi
+
+	# handle 'osub' entries (has to be after copying $dir_tmp to $dir_out
+	# since otherwise rsync --delete would delete those directories
+	if [ $handle_osub -eq 1 ];then
+		dbg 1 "\n\033[35m[processing 'osub' files (files with substituted output folder)]\033[0m"
+
+		for (( i=0; $i<${#osub_src_lst[*]}; i++ ));do
+			src=${osub_src_lst[$i]}
+
+			# check if $src contains a wildcard at the end
+			# disable shell auto expansion
+			set -o noglob
+
+			wildcard=$(echo $src | grep -e '*$')
+
+			# enable shell auto expansion
+			set +o noglob
+
+			# if $wildcard is empty $src contains a single path
+			if [ "$wildcard" == "" ];then
+				copy -r "$src" "${osub_dest_lst[$i]}"
+
+			# else $src contains a wildcard and every entry has to be handled separately
+			else
+				# disable shell auto expansion
+				set -o noglob
+
+				# safe Internal Field Separator
+				_ifs=$IFS
+				_src=$(echo $src | tr -d '*')
+
+				# enable shell auto expansion
+				set +o noglob
+
+				for path in $(ls -1 $_src)
+				do
+					copy -r "$_src$path" "${osub_dest_lst[$i]}"
+				done
+
+				# restore Internal Field Separator
+				IFS=$_ifs
+			fi
+		done
+	fi
+
+	if [ $preserve -eq 0 -a $indicate -eq 0 ];then
+		rm -rf "$dir_tmp"
+	fi
+}
+
+function restore(){
+	dbg 2 "function: restore"
+
+	# identify backup.conf location
+	if [ "$recover" == "archive" ];then
+		# clear $dir_tmp
+		rm -rf "$dir_tmp"
+		$cmd_mkdir "$dir_tmp"
+
+		# copy backup archive
+		$cmd_cp "$file_backup" "$dir_tmp"
+		cd "$dir_tmp"
+		$cmd_untar "$(basename "$file_backup")"
+		
+		file_conf="$dir_tmp/backup.conf"
+	else
+		file_conf="$file_backup/backup.conf"
+		dir_tmp="$file_backup"
+	fi
+
+	# parse backup configuration file $file_conf
+	parse_config_dir
+
+	# cp data from $dir_tmp to target directories specified in $file_conf
+	for (( i=0; $i<${#dir[*]}; i++ ));do
+		for (( j=0; $j<${nfiles[${dir[$i]}]}; j++ ));do
+			opt=${file_options[${dir[$i]},$j]}
+
+			if [ "$(echo $opt | grep noarchive)" == "" ];then
+				src=$(concat "$dir_tmp" "${dir[$i]}" "${file[${dir[$i]},$j]}")
+				dest=$(concat "${dir[$i]}" "$(dirname "${file[${dir[$i]},$j]}")")
+
+				copy "$src" "$dest"
+			fi
+		done
+	done
+
+	# clean $dir_tmp
+	if [ "$recover" == "archive" -a $preserve -eq 0 ];then
+		cd ..
+		rm -rf "$dir_tmp"
+	fi
+}
+
+# check user ID
+# if [ ! $UID -eq 0 ];then
+# 	su -c "$0 $@"
+# 	exit 0
+# fi
+
+parse_arg $@
+echo > $file_log
+
+if [ "$recover" == "" ];then
+	archive
+else
+	restore
+fi
+
+exit 0

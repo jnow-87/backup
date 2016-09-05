@@ -17,7 +17,7 @@ tool_deps :=
 
 # init source and build tree
 default_build_tree := build/$(CONFIG_BUILD_TYPE)/
-src_dirs := main/
+src_dirs := main/ testing/
 
 # include build system Makefile
 include $(scripts_dir)/Makefile.inc

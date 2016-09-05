@@ -1,0 +1,52 @@
+# target calling all test cases
+.PHONY: testing-all
+testing-all: testing-backup
+
+
+####
+## helper
+####
+FG := "\033[36m"
+RESET_ATTR := "\033[0m"
+
+define testmsg
+	$(echo) $(FG) "\n\n\t ***" $(1) "***\n\n" $(RESET_ATTR)
+endef
+
+
+##################
+### test cases ###
+##################
+
+####
+## backup
+####
+
+# test case comparing the output of the old backup shell script
+# against the new implementation
+
+# config
+backup-sh := $(loc_src_tree)/backup
+backup-sh-cfg := $(loc_src_tree)/backup.conf
+backup-sh-out := /tmp/old-out
+backup-sh-rsync := /tmp/old-rsync
+
+backup-bin := $(build_tree)/main/backup
+backup-bin-cfg :=$(loc_src_tree)/backup.bc
+backup-bin-out := /tmp/new-out
+backup-bin-rsync := /tmp/new-rsync
+
+# target
+.PHONY: testing-backup
+testing-backup:
+	$(rm) $(backup-sh-out) $(backup-sh-rsync) $(backup-bin-out) $(backup-bin-rsync)
+	$(call testmsg,"executing backup shell script")
+	$(backup-sh) -c $(backup-sh-cfg)
+	$(call testmsg,"executing backup binary")
+	$(backup-bin) -f $(backup-bin-cfg)
+	$(call testmsg,"untar shell script output")
+	tar xzf $(backup-sh-out)/backup_* -C $(backup-sh-out)
+	$(call testmsg,"diff output directories")
+	diff -rq $(backup-sh-out) $(backup-bin-out); exit 0
+	$(call testmsg,"diff rsync directories")
+	diff -rq $(backup-sh-rsync) $(backup-bin-rsync); exit 0
