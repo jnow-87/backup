@@ -6,7 +6,7 @@ config LOG_FILE
 
 config CONFIG_FILE
 	string "config file (default)"
-	default "/etc/backup.cfg"
+	default "/etc/backup.bc"
 
 config CONFIG
 	string "config (default)"
@@ -14,11 +14,11 @@ config CONFIG
 
 config OUT_DIR
 	string "output directory (default)"
-	default "/tmp/backup_out"
+	default "/tmp/backup/out"
 
 config TMP_DIR
 	string "directory for temporary files (default)"
-	default "/tmp/backup"
+	default "/tmp/backup/tmp"
 
 config CP_ARGS
 	string "cp command arguments"
