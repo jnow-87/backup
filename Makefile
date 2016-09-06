@@ -69,11 +69,13 @@ distclean:
 install-user: all
 	$(mkdir) -p ~/bin
 	$(cp) -au $(build_tree)/main/backup ~/bin/
+	$(cp) cfg/bc.vim ~/.vim/syntax
 
 .PHONY: install-system
 install-system: all
 	$(mkdir) -p /usr/bin
 	$(cp) -au $(build_tree)/main/backup /usr/bin/
+	$(cp) cfg/bc.vim /root/.vim/syntax
 
 .PHONY: uninstall
 uninstall:
