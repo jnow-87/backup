@@ -198,7 +198,32 @@ void argv::help(char *pname, char const *msg, ...){
 		   "\t%15.15s\t%s\n"
 		   "\t%15.15s\t%s\n",
 		   "config-file", CONFIG_CONFIG_FILE,
-		   "log-file", CONFIG_LOG_FILE
+		   "config", CONFIG_CONFIG,
+		   "log-file", CONFIG_LOG_FILE,
+		   "out-dir", CONFIG_OUT_DIR,
+		   "tmp-dir", CONFIG_TMP_DIR
+	);
+
+	/* print config file syntax */
+	USER("\nconfig file syntax:\n"
+		 "\tvar <variable name> = <quoted string> | <integer>;\n"
+		 "\tcfg <config name> = '{' {<config member>} '}';\n"
+		 "\tdir <directory> = '{' {<file>} '}';\n"
+		 "\n"
+		 "\t<config member>:\n"
+		 "\t\t.archive = <bool>\n"
+		 "\t\t.noconfig = <bool>\n"
+		 "\t\t.nodata = <bool>\n"
+		 "\t\t.indicate = <bool>\n"
+		 "\t\t.preserve = <bool>\n"
+		 "\t\t.out-dir = <quoted string>\n"
+		 "\t\t.tmp-dir = <quoted string>\n"
+		 "\t\t.log-file = <quoted string>\n"
+		 "\t\t.rsync-dir = <quoted string>\n"
+		 "\t\t.verbose = <integer>\n"
+		 "\n"
+		 "\t<file>:\n"
+		 "\t\t.file = '{' .name = <quoted string> [, .rsync-dir = <quoted string>] '}'\n"
 	);
 
 	if(msg)
