@@ -67,13 +67,13 @@ res-chroot-cmp := /tmp/restore-chroot-cmp
 
 .PHONY: testing-restore
 testing-restore:
-	$(rm) $(res-tmp) $(res-chroot)
+	$(rm) $(dir $(res-out)) $(res-chroot) $(res-chroot-cmp)
 	$(mkdir) $(res-chroot) $(res-chroot-cmp)
 	$(call testmsg,"untar chroot")
 	tar xzf $(res-chroot-arch) -C $(res-chroot)
 	tar xzf $(res-chroot-arch) -C $(res-chroot-cmp)
 	$(call testmsg,"backup chroot")
-	$(backup-bin) -f $(res-cfg) -p
+	$(backup-bin) -f $(res-cfg)
 	$(rm) $(res-chroot)
 	$(call testmsg,"restore")
 	$(backup-bin) -r $(res-out)
