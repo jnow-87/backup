@@ -62,9 +62,9 @@ void restore(cfg_t *cfg, dir_t *dir_lst){
 
 /* local functions */
 void handle_file(char const *base, dir_t *dir, file_t *file, bool indicate){
+	static char c = 0;
 	bool file_done;
-	char c,
-		 *sdir;
+	char const *sdir;
 
 
 	file_done = false;
@@ -72,7 +72,7 @@ void handle_file(char const *base, dir_t *dir, file_t *file, bool indicate){
 
 	while(!file_done){
 		// get user selection
-		if(!(copy_all || move_all || diff_all || skip_all)){
+		if(!(copy_all || move_all || diff_all || skip_all) || c == 0){
 			c = uinput("%s%s: "
 					   "copy/all " BOLD "[c/C]" RESET_ATTR ", "
 					   "move/all " BOLD "[m/M]" RESET_ATTR ", "
