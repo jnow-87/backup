@@ -82,7 +82,7 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 		list_for_each(dir_lst, dir){
 			list_for_each(dir->file_lst, file){
 				if(file->rsync_dir != 0)
-					copy("", dir->path, file->name, cfg->rsync_dir, file->rsync_dir, "", CMD_RSYNC, cfg->indicate);
+					copy("", dir->path, file->name, cfg->rsync_dir, file->rsync_dir, filename(file->name), CMD_RSYNC, cfg->indicate);
 			}
 		}
 	}

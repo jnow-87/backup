@@ -64,11 +64,13 @@ void restore(cfg_t *cfg, dir_t *dir_lst){
 void handle_file(char const *base, dir_t *dir, file_t *file, bool indicate){
 	static char c = 0;
 	bool file_done;
-	char const *sdir;
+	char const *sdir,
+		 	   *sfile;
 
 
 	file_done = false;
 	sdir = (file->rsync_dir ? file->rsync_dir : dir->path);
+	sfile = (file->rsync_dir ? filename(file->name) : file->name);
 
 	while(!file_done){
 		// get user selection
@@ -91,7 +93,7 @@ void handle_file(char const *base, dir_t *dir, file_t *file, bool indicate){
 			// fall through
 
 		case 'c':
-			copy(base, sdir, file->name, "", dir->path, file->name, CMD_COPY, indicate);
+			copy(base, sdir, sfile, "", dir->path, file->name, CMD_COPY, indicate);
 			file_done = true;
 			break;
 
@@ -101,7 +103,7 @@ void handle_file(char const *base, dir_t *dir, file_t *file, bool indicate){
 			// fall through
 
 		case 'm':
-			copy(base, sdir, file->name, "", dir->path, file->name, CMD_MOVE, indicate);
+			copy(base, sdir, sfile, "", dir->path, file->name, CMD_MOVE, indicate);
 			file_done = true;
 			break;
 
@@ -111,7 +113,7 @@ void handle_file(char const *base, dir_t *dir, file_t *file, bool indicate){
 			// fall through
 
 		case 'd':
-			diff(base, sdir, file->name, "", dir->path, file->name);
+			diff(base, sdir, sfile, "", dir->path, file->name);
 			break;
 
 		// skip

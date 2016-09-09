@@ -97,3 +97,21 @@ char *dirname(char const *base, char const *dir, char const *file){
 
 	return s;
 }
+
+char const *filename(char const *file){
+	char const *p;
+
+
+	if(*file == 0)
+		return file;
+
+	p = file + strlen(file) - 1;
+
+	/* skip trailing '/' */
+	while(p != file && *p == '/') --p;
+
+	/* skip to the next '/' or start of string */
+	while(p != file && *p != '/') --p;
+
+	return *p == '/' ? p + 1 : p;
+}

@@ -26,6 +26,7 @@ typedef enum{
 char *stralloc(char const *name, unsigned int len, int flags);
 char *stralloc(char const *name, int flags);
 char *dirname(char const *base, char const *dir, char const *file);
+char const *filename(char const *file);
 
 
 #endif // STRING_H
