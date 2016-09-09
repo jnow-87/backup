@@ -178,6 +178,13 @@ cfg_t *cfg_apply(cfg_t *lst){
 
 	if(cfg == 0){
 		ERROR("unknown configuration \"%s\"\n", argv::config);
+		ERROR("valid configurations:");
+
+		list_for_each(lst, cfg)
+			ERROR(" %s", cfg->name);
+
+		ERROR("\n");
+
 		return 0;
 	}
 
