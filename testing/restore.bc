@@ -11,11 +11,11 @@ config default = {
 
 /* first dir */
 dir "/tmp/restore-chroot" = {
-	.file = { .name = "vimrc"},
-	.file = { .name = ".bashrc" },
-	.file = { .name = ".vim", .rsync-dir = "vim" }
+	.file = { .name = "home/jan/vimrc"},
+	.file = { .name = "home/jan/.bashrc" },
+	.file = { .name = "home/jan/.vim", .rsync-dir = "config/vim" }
 };
 
-dir "/tmp/restore-chroot" = {
-	.file = { .name = ".gitconfig" }
+dir "/tmp/restore-chroot/home" = {
+	.file = { .name = "jan/.gitconfig" }
 };
