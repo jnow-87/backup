@@ -1,7 +1,7 @@
 config default = {
 	.archive = 0,
 	.indicate = 0,
-	.log-file = "/tmp/restore/backup.log",
+	.log-file = "/tmp/restore.log",
 	.preserve = 1,
 	.verbose = 1,
 	.rsync-dir = "/tmp/restore/rsync",

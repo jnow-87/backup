@@ -1,6 +1,6 @@
 # target calling all test cases
 .PHONY: testing-all
-testing-all: testing-backup testing-restore
+testing-all: testing-backup testing-restore-dir testing-restore-arch
 
 
 ####
@@ -65,8 +65,8 @@ res-out := /tmp/restore/out
 res-chroot := /tmp/restore-chroot
 res-chroot-cmp := /tmp/restore-chroot-cmp
 
-.PHONY: testing-restore
-testing-restore:
+.PHONY: testing-restore-dir
+testing-restore-dir:
 	$(rm) $(dir $(res-out)) $(res-chroot) $(res-chroot-cmp)
 	$(mkdir) $(res-chroot) $(res-chroot-cmp)
 	$(call testmsg,"untar chroot")
@@ -77,5 +77,20 @@ testing-restore:
 	$(rm) $(res-chroot)
 	$(call testmsg,"restore")
 	$(backup-bin) -r $(res-out)
+	$(call testmsg,"diff" $(res-chroot) "and" $(res-chroot-cmp))
+	diff -rq $(res-chroot) $(res-chroot-cmp)
+
+.PHONY: testing-restore-arch
+testing-restore-arch:
+	$(rm) $(dir $(res-out)) $(res-chroot) $(res-chroot-cmp)
+	$(mkdir) $(res-chroot) $(res-chroot-cmp)
+	$(call testmsg,"untar chroot")
+	tar xzf $(res-chroot-arch) -C $(res-chroot)
+	tar xzf $(res-chroot-arch) -C $(res-chroot-cmp)
+	$(call testmsg,"backup chroot")
+	$(backup-bin) -f $(res-cfg) -a
+	$(rm) $(res-chroot)
+	$(call testmsg,"restore")
+	$(backup-bin) -r $(res-out)/*.tar.gz
 	$(call testmsg,"diff" $(res-chroot) "and" $(res-chroot-cmp))
 	diff -rq $(res-chroot) $(res-chroot-cmp)
