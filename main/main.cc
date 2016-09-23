@@ -105,7 +105,9 @@ int main(int argc, char **argv){
 	if(cfg == 0)
 		goto cleanup;
 
-	log::set_log_file(cfg->log_file);
+	if(log::set_log_file(cfg->log_file) != 0)
+		ERROR("unable to open log-file \"%s\" (%s)\n", cfg->log_file, strerror(errno));
+
 	log::set_log_level(cfg->verbosity);
 
 	/* print command line and config */
@@ -178,12 +180,12 @@ cfg_t *cfg_apply(cfg_t *lst){
 
 	if(cfg == 0){
 		ERROR("unknown configuration \"%s\"\n", argv::config);
-		ERROR("valid configurations:");
+		USER("valid configurations:");
 
 		list_for_each(lst, cfg)
-			ERROR(" %s", cfg->name);
+			USER(" %s", cfg->name);
 
-		ERROR("\n");
+		USER("\n");
 
 		return 0;
 	}
