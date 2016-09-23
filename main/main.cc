@@ -20,7 +20,7 @@ static cfg_t *cfg_apply(cfg_t *lst);
 int main(int argc, char **argv){
 	int ret;
 	bool valid;
-	char name[MAXLEN];
+	char cfg_name[MAXLEN];
 	cfg_t *cfg_lst,
 		  *cit,
 		  *cfg;
@@ -48,31 +48,35 @@ int main(int argc, char **argv){
 
 	tcsetattr(0, TCSAFLUSH, &term_s);
 
-	/* untar archive if restore from archive */
-	if(argv::restore && ftype("", "", argv::archive) == FTYPE_FILE){
-		// force default tmp-dir to be used, to avoid extrating
-		// the backup archive to the default directory while using
-		// the directory from the config file afterwards
-		argv::set.tmp_dir = 1;
-
-		/* remove tmp directory */
-		if(rmdir(argv::tmp_dir, false) != 0)
-			goto cleanup;
-
-		if(mkdir("", argv::tmp_dir, false) != 0)
-			goto cleanup;
-
-		if(tar("xzf", argv::archive, argv::tmp_dir, "", false) != 0){
-			rmdir(argv::tmp_dir, false);
-			goto cleanup;
-		}
-	}
-
-	/* parse config file */
+	/* prepare restore and identify config file name */
 	if(argv::restore){
 		switch(ftype("", "", argv::archive)){
+		case FTYPE_FILE:
+			// expect tar.gz archive
+			snprintf(cfg_name, MAXLEN, "%sconfig.bc", argv::tmp_dir);
+
+			// remove tmp directory
+			if(rmdir(argv::tmp_dir, false) != 0)
+				goto cleanup;
+
+			if(mkdir("", argv::tmp_dir, false) != 0)
+				goto cleanup;
+
+			// untar archive
+			if(tar("xzf", argv::archive, argv::tmp_dir, "", false) != 0){
+				rmdir(argv::tmp_dir, false);
+				goto cleanup;
+			}
+
+			// force default tmp-dir to be used, to avoid extrating
+			// the backup archive to the default directory while using
+			// the directory from the config file afterwards
+			argv::set.tmp_dir = 1;
+			break;
+
 		case FTYPE_DIR:
-			snprintf(name, MAXLEN, "%s%sconfig.bc", argv::archive, (argv::archive[strlen(argv::archive) - 1] != '/' ? "/" : ""));
+			// expect directory containing config.bc
+			snprintf(cfg_name, MAXLEN, "%s%sconfig.bc", argv::archive, (STRLASTC(argv::archive) != '/' ? "/" : ""));
 
 			// ensure restore() can use argv::tmp_dir as source
 			if(argv::tmp_dir)
@@ -82,21 +86,18 @@ int main(int argc, char **argv){
 			argv::set.tmp_dir = 1;
 			break;
 
-		case FTYPE_FILE:
-			snprintf(name, MAXLEN, "%sconfig.bc", argv::tmp_dir);
-			break;
-
 		default:
-			ERROR("%s: %s\n", argv::archive, strerror(errno));
+			ERROR("expecting archive or config file for restore\n");
 			goto cleanup;
 		}
 	}
 	else
-		snprintf(name, MAXLEN, argv::config_file);
+		snprintf(cfg_name, MAXLEN, argv::config_file);
 
-	USER("parsing configuration from %s\n", name);
+	/* parse config file */
+	USER("parsing configuration from %s\n", cfg_name);
 
-	if(cfgparse(name, &cfg_lst, &dir_lst, &valid) != 0 || !valid)
+	if(cfgparse(cfg_name, &cfg_lst, &dir_lst, &valid) != 0 || !valid)
 		goto cleanup;
 
 	/* synchronise config and command line */
