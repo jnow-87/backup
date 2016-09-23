@@ -29,7 +29,7 @@ char uinput(char const *text, char const *valid, ...){
 
 	if(text != 0){
 		va_start(lst, valid);
-		VUSER(text, lst);
+		log::vprint(USER0, text, lst);
 		va_end(lst);
 	}
 	else

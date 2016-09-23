@@ -19,8 +19,10 @@
  * \return	next, non-option argument value
  */
 #define GET_ARG()({ \
-	if(i + 1 == argc || opt_tbl::lookup(argv[i + 1], strlen(argv[i + 1]))) \
-		argv::help(argv[0], "missing parameter for option \"%s\"", argv[i]); \
+	if(i + 1 == argc || opt_tbl::lookup(argv[i + 1], strlen(argv[i + 1]))){ \
+		ERROR("missing parameter for option \"%s\"", argv[i]); \
+		argv::help(argv[0]); \
+	} \
 	\
 	argv[++i]; \
 })
@@ -60,8 +62,10 @@ int argv::parse(int argc, char **argv){
 	for(i=1; i<argc; ++i){
 		opt = opt_tbl::lookup(argv[i], strlen(argv[i]));
 
-		if(opt == 0)
-			help(argv[0], "invalid command line option \"%s\"", argv[i]);
+		if(opt == 0){
+			ERROR("invalid command line option \"%s\"", argv[i]);
+			help(argv[0]);
+		}
 
 		desc = opt->desc;
 
@@ -162,24 +166,12 @@ void argv::cleanup(){
  * \brief	print the help message
  *
  * \param	pname	program name
- * \param	msg		optional error message format string
- * \param	...		optional arguments
  */
-void argv::help(char *pname, char const *msg, ...){
+void argv::help(char *pname){
 	unsigned int i;
 	struct opt_t const *opt;
 	opt_desc_t const *desc;
-	va_list lst;
 
-
-	/* print message */
-	if(msg){
-		va_start(lst, msg);
-		ERROR(FG_RED "\t");
-		VERROR(msg, lst);
-		ERROR(RESET_ATTR "\n\n");
-		va_end(lst);
-	}
 
 	/* print header */
 	USER("usage: %s <options>\n\noptions:\n", pname);
@@ -225,9 +217,6 @@ void argv::help(char *pname, char const *msg, ...){
 		 "\t<file>:\n"
 		 "\t\t.file = '{' .name = <quoted string> [, .rsync-dir = <quoted string>] '}'\n"
 	);
-
-	if(msg)
-		exit(1);
 
 	exit(0);
 }

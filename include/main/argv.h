@@ -76,7 +76,7 @@ public:
 
 private:
 	/* private functions */
-	static void help(char *pname, char const *msg = 0, ...);
+	static void help(char *pname);
 };
 
 
