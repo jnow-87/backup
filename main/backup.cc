@@ -27,13 +27,22 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 	if(!yesno("continue backup?"))
 		return;
 
-	/* remove tmp directory */
+	/* prepare tmp directory */
 	if(rmdir(cfg->tmp_dir, cfg->indicate) != 0)
 		return;
 
-	/* cp config to tmp directory */
-	if(copy("", "", argv::config_file, "", cfg->tmp_dir, "config.bc", CMD_COPY, cfg->indicate) != 0)
+	if(mkdir("", cfg->tmp_dir, cfg->indicate) != 0)
 		return;
+
+	/* cp config to tmp directory */
+	USER("copy config file %s ", argv::config_file);
+
+	if(SHELL("cp %s %sconfig.bc", argv::config_file, cfg->tmp_dir) != 0){
+		USERERR("%s\n", shellerrstr);
+		return;
+	}
+
+	USEROK();
 
 	/* create backup.date in tmp directory */
 	USER("generating backup.date ");
@@ -82,7 +91,7 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 		list_for_each(dir_lst, dir){
 			list_for_each(dir->file_lst, file){
 				if(file->rsync_dir != 0)
-					copy("", dir->path, file->name, cfg->rsync_dir, file->rsync_dir, filename(file->name), CMD_RSYNC, cfg->indicate);
+					copy("", dir->path, file->name, cfg->rsync_dir, file->rsync_dir, "", CMD_RSYNC, cfg->indicate);
 			}
 		}
 	}

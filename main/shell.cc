@@ -16,11 +16,8 @@ using namespace std;
 
 
 /* macros */
-#define SHELL(cmd, ...) \
-	shell(cmd " 2>&1", ##__VA_ARGS__)
-
 #define ERRSTR(fmt, ...) \
-	snprintf(errstr, MAXLEN, fmt, ##__VA_ARGS__)
+	snprintf(shellerrstr, MAXLEN, fmt, ##__VA_ARGS__)
 
 
 /* static variables */
@@ -38,11 +35,7 @@ static char const *cmd_txt[] = {
 	"move"
 };
 
-static char errstr[MAXLEN];
-
-
-/* local/static prototypes */
-int shell(char const *cmd, ...);
+char shellerrstr[MAXLEN];
 
 
 /* global functions */
@@ -139,7 +132,7 @@ int copy(char const *sbase, char const *sdir, char const *sfile, char const *dba
 	return 0;
 
 err:
-	USERERR("%s", errstr);
+	USERERR("%s", shellerrstr);
 	delete dst;
 
 	return -1;
@@ -204,7 +197,7 @@ int rmdir(char const *dir, bool indicate){
 	}
 
 	if(SHELL("rm -fr %s", dir) != 0){
-		USERERR("%s", errstr);
+		USERERR("%s", shellerrstr);
 		return -1;
 	}
 
@@ -233,7 +226,7 @@ int mkdir(char const *base, char const *dir, bool indicate){
 	}
 
 	if(SHELL("mkdir -p %s%s", base, dir) != 0){
-		USERERR("%s", errstr);
+		USERERR("%s", shellerrstr);
 		return -1;
 	}
 
@@ -260,7 +253,7 @@ int tar(char const *mode, char const *archive, char const *dir, char const *opt,
 	}
 
 	if(SHELL("tar %s %s -C %s %s", mode, archive, dir, opt) != 0){
-		USERERR("%s", errstr);
+		USERERR("%s", shellerrstr);
 		return -1;
 	}
 
@@ -392,7 +385,7 @@ int diff(char const *sbase, char const *sdir, char const *sfile, char const *dba
 	);
 
 	if(r != 0){
-		USERERR("%s", errstr);
+		USERERR("%s", shellerrstr);
 		return -1;
 	}
 
@@ -401,8 +394,6 @@ int diff(char const *sbase, char const *sdir, char const *sfile, char const *dba
 	return 0;
 }
 
-
-/* local functions */
 int shell(char const *cmd, ...){
 	FILE *fp;
 	va_list lst;

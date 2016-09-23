@@ -2,6 +2,11 @@
 #define SHELL_H
 
 
+/* macros */
+#define SHELL(cmd, ...) \
+	shell(cmd " 2>&1", ##__VA_ARGS__)
+
+
 /* types */
 typedef enum{
 	CMD_COPY = 1,
@@ -19,6 +24,10 @@ typedef enum{
 } ftype_t;
 
 
+/* external variables */
+extern char shellerrstr[];
+
+
 /* prototypes */
 int copy(char const *sbase, char const *sdir, char const *sfile, char const *dbase, char const *ddir, char const *dfile, cp_cmd_t cmd, bool indicate);
 int unlink(char const *dir, char const *file, bool indicate);
@@ -29,6 +38,8 @@ int diff(char const *sbase, char const *sdir, char const *sfile, char const *dba
 
 ftype_t ftype(char const *base, char const *dir, char const *file);
 int file_write(char const *file, char const *flags, char const *fmt, ...);
+
+int shell(char const *cmd, ...);
 
 
 #endif // SHELL_H
