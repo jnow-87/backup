@@ -12,6 +12,7 @@
 
 #define STRNULL(s)	((s) ? (s) : "")
 
+#define STRLASTC(s)	((*(s) != 0 ) ? ((s)[strlen(s) - 1]) : 0)
 
 /* types */
 typedef enum{

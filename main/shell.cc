@@ -55,13 +55,13 @@ char shellerrstr[MAXLEN];
  * 			-1	error
  */
 int copy(char const *sbase, char const *sdir, char const *sfile, char const *dbase, char const *ddir, char const *dfile, cp_cmd_t cmd, bool indicate){
-	char *dst;
+	char *dname;
 	ftype_t sftype;
 
 
 	/* check arguments */
 	// init pointer
-	dst = 0;
+	dname = 0;
 
 	sbase = STRNULL(sbase);
 	sdir = STRNULL(sdir);
@@ -108,32 +108,23 @@ int copy(char const *sbase, char const *sdir, char const *sfile, char const *dba
 	}
 
 	// create destination directory
-	dst = dirname(dbase, ddir, dfile);
+	dname = dirname("", "", dfile);
 
-	if(dst == 0 || SHELL("mkdir -p %s", dst) != 0)
+	if(dname == 0 || SHELL("mkdir -p %s%s%s", dbase, ddir, dname) != 0)
 		goto err;
 
 	// issue copy
-	if(sftype == FTYPE_DIR){
-		// copy directory, copy to dst to avoid creating a false directory,
-		// e.g. cp /src/dir /dst/dir would create /dst/dir/dir
-		if(SHELL("%s %s%s%s %s", cmd_str[cmd], sbase, sdir, sfile, dst) != 0)
-			goto err;
-	}
-	else{
-		// copy file
-		if(SHELL("%s %s%s%s %s%s%s", cmd_str[cmd], sbase, sdir, sfile, dbase, ddir, dfile) != 0)
-			goto err;
-	}
+	if(SHELL("%s %s%s%s %s%s%s", cmd_str[cmd], sbase, sdir, sfile, dbase, ddir, dname) != 0)
+		goto err;
 
 	USEROK();
-	delete dst;
+	delete dname;
 
 	return 0;
 
 err:
 	USERERR("%s", shellerrstr);
-	delete dst;
+	delete dname;
 
 	return -1;
 }
@@ -301,7 +292,7 @@ ftype_t ftype(char const *base, char const *dir, char const *file){
 	}
 
 	// open file
-	if(file[0] != 0 && file[strlen(file) - 1] == '*'){
+	if(STRLASTC(file) == '*'){
 		close(fd_dir);
 		return FTYPE_OTHER;
 	}

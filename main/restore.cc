@@ -65,13 +65,46 @@ void handle_file(char const *base, dir_t *dir, file_t *file, bool indicate){
 	static char c = 0;
 	bool file_done;
 	char const *sdir,
-		 	   *sfile;
+		 	   *sfile,
+			   *dbase,
+			   *ddir,
+			   *dfile;
 
 
+	/* init */
 	file_done = false;
-	sdir = (file->rsync_dir ? file->rsync_dir : dir->path);
-	sfile = (file->rsync_dir ? filename(file->name) : file->name);
 
+	// source
+	sfile = file->name;
+	sdir = dir->path;
+
+	// destination
+	dbase = "";
+	ddir = dir->path;
+	dfile = file->name;
+
+	// handle files with rsync directories
+	if(file->rsync_dir){
+		sfile = filename(file->name);
+		sdir = file->rsync_dir;
+
+		// handle rsync special cases
+		// 	dir/:	if the file name contains trailing '/' the content of the
+		// 			original directory rather than the directory itself has
+		// 			been copied to the backup, hence only the content needs
+		//			to be restored
+		//			to ensure that dfile is not truncated, it is not used,
+		//			instead dbase and ddir are used
+		if(STRLASTC(file->name) == '/'){
+			sfile = "*";
+
+			dbase = dir->path;
+			ddir = file->name;
+			dfile = "";
+		}
+	}
+
+	/* get and execute user action */
 	while(!file_done){
 		// get user selection
 		if(!(copy_all || move_all || diff_all || skip_all) || c == 0){
@@ -93,7 +126,7 @@ void handle_file(char const *base, dir_t *dir, file_t *file, bool indicate){
 			// fall through
 
 		case 'c':
-			copy(base, sdir, sfile, "", dir->path, file->name, CMD_COPY, indicate);
+			copy(base, sdir, sfile, dbase, ddir, dfile, CMD_COPY, indicate);
 			file_done = true;
 			break;
 
@@ -103,7 +136,7 @@ void handle_file(char const *base, dir_t *dir, file_t *file, bool indicate){
 			// fall through
 
 		case 'm':
-			copy(base, sdir, sfile, "", dir->path, file->name, CMD_MOVE, indicate);
+			copy(base, sdir, sfile, dbase, ddir, dfile, CMD_MOVE, indicate);
 			file_done = true;
 			break;
 
@@ -113,7 +146,7 @@ void handle_file(char const *base, dir_t *dir, file_t *file, bool indicate){
 			// fall through
 
 		case 'd':
-			diff(base, sdir, sfile, "", dir->path, file->name);
+			diff(base, sdir, sfile, dbase, ddir, dfile);
 			break;
 
 		// skip
