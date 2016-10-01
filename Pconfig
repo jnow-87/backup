@@ -42,7 +42,7 @@ config DIFF_TOOL_DIR
 
 config TERMINAL
 	string "terminal"
-	default "xterm -e"
+	default "xterm -fullscreen -e"
 
 choice
 	prompt "Build type"
