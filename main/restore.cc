@@ -13,7 +13,6 @@
 static bool copy_all = false,
 			rsync_all = false,
 			move_all = false,
-			diff_all = false,
 			skip_all = false;
 
 
@@ -45,7 +44,6 @@ void restore(cfg_t *cfg, dir_t *dir_lst){
 	copy_all = false;
 	rsync_all = false;
 	move_all = false;
-	diff_all = false;
 	skip_all = false;
 
 	/* handle files with rsync directory */
@@ -109,14 +107,14 @@ void handle_file(char const *base, dir_t *dir, file_t *file, bool indicate){
 	/* get and execute user action */
 	while(!file_done){
 		// get user selection
-		if(!(copy_all || rsync_all || move_all || diff_all || skip_all) || c == 0){
+		if(!(copy_all || rsync_all || move_all || skip_all) || c == 0){
 			c = uinput("%s%s: "
 					   "copy/all " BOLD "[c/C]" RESET_ATTR ", "
 					   "rsync/all " BOLD "[r/R]" RESET_ATTR ", "
 					   "move/all " BOLD "[m/M]" RESET_ATTR ", "
-					   "diff/all " BOLD "[d/D]" RESET_ATTR ", "
+					   "diff/all " BOLD "[d]" RESET_ATTR ", "
 					   "ship/all " BOLD "[s/S]" RESET_ATTR "\n",
-					   "cCrRmMdDsS",
+					   "cCrRmMdsS",
 					   dir->path, file->name
 			);
 		}
@@ -154,10 +152,6 @@ void handle_file(char const *base, dir_t *dir, file_t *file, bool indicate){
 			break;
 
 		// diff
-		case 'D':
-			diff_all = true;
-			// fall through
-
 		case 'd':
 			diff(base, sdir, sfile, dbase, ddir, dfile);
 			break;
