@@ -74,7 +74,7 @@
 [a-zA-Z_][a-zA-Z_\-0-9]*		{ cfglval.c_str.s = cfgtext; cfglval.c_str.len = cfgleng; return IDFR; }
 
 	/* string */
-\"[a-zA-Z0-9._/\-\. ]+\"		{ cfglval.c_str.s = cfgtext + 1; cfglval.c_str.len = cfgleng - 2; return STRING; }
+\"[a-zA-Z0-9._/\-\. @]+\"		{ cfglval.c_str.s = cfgtext + 1; cfglval.c_str.len = cfgleng - 2; return STRING; }
 
 	/* integer */
 [0-9]*							{ cfglval.i = atoi(cfgtext); return INT; }
