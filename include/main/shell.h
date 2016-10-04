@@ -4,7 +4,10 @@
 
 /* macros */
 #define SHELL(cmd, ...) \
-	shell(cmd " 2>&1", ##__VA_ARGS__)
+	pshell(cmd " 2>&1", ##__VA_ARGS__)
+
+#define SYSTEM(cmd, ...) \
+	sshell(cmd " 2>&1", ##__VA_ARGS__)
 
 
 /* types */
@@ -39,7 +42,8 @@ int diff(char const *sbase, char const *sdir, char const *sfile, char const *dba
 ftype_t ftype(char const *base, char const *dir, char const *file);
 int file_write(char const *file, char const *flags, char const *fmt, ...);
 
-int shell(char const *cmd, ...);
+int pshell(char const *cmd, ...);
+int sshell(char const *cmd, ...);
 
 
 #endif // SHELL_H

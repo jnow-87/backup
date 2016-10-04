@@ -369,11 +369,7 @@ int diff(char const *sbase, char const *sdir, char const *sfile, char const *dba
 		return -1;
 	}
 
-	r = SHELL("%s \"%s %s%s%s %s%s%s ; echo -e '\n" FG_GREEN "done" RESET_ATTR " <press any key to continue>' ; read -sn1 x\"",
-			CONFIG_TERMINAL, difftool,
-			sbase, sdir, sfile,
-			dbase, ddir, dfile
-	);
+	r = SYSTEM("%s %s%s%s %s%s%s", difftool, sbase, sdir, sfile, dbase, ddir, dfile);
 
 	if(r != 0){
 		USERERR("%s", shellerrstr);
@@ -385,7 +381,7 @@ int diff(char const *sbase, char const *sdir, char const *sfile, char const *dba
 	return 0;
 }
 
-int shell(char const *cmd, ...){
+int pshell(char const *cmd, ...){
 	FILE *fp;
 	va_list lst;
 	char buf[MAXLEN];
@@ -437,5 +433,30 @@ int shell(char const *cmd, ...){
 		return -(WEXITSTATUS(s));
 	}
 
+	return -1;
+}
+
+int sshell(char const *cmd, ...){
+	va_list lst;
+	char buf[MAXLEN];
+	int s;
+
+
+	/* issue cmd */
+	va_start(lst, cmd);
+	s = vsnprintf(buf, MAXLEN, cmd, lst);
+	va_end(lst);
+
+	if(s >= MAXLEN){
+		ERRSTR("command exceeds maximum length of %d characters", MAXLEN);
+		return -1;
+	}
+
+	LOGONLY("issue cmd: \"%s\"\n", buf);
+
+	s = system(buf);
+
+	if(WIFEXITED(s))
+		return -(WEXITSTATUS(s));
 	return -1;
 }
