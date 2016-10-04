@@ -28,10 +28,10 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 		return;
 
 	/* prepare tmp directory */
-	if(rmdir(cfg->tmp_dir, cfg->indicate) != 0)
+	if(rmdir(cfg->tmp_dir, false) != 0)
 		return;
 
-	if(mkdir("", cfg->tmp_dir, cfg->indicate) != 0)
+	if(mkdir("", cfg->tmp_dir, false) != 0)
 		return;
 
 	/* cp config to tmp directory */
