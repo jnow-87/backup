@@ -22,7 +22,7 @@ config TMP_DIR
 
 config CP_ARGS
 	string "cp command arguments"
-	default "-rau"
+	default "-ra"
 
 config RSYNC_ARGS
 	string "rsync command arguments"
