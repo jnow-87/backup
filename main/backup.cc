@@ -27,38 +27,39 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 	if(!yesno("continue backup?"))
 		return;
 
-	/* prepare tmp directory */
-	if(rmdir(cfg->tmp_dir, false) != 0)
-		return;
-
-	if(mkdir("", cfg->tmp_dir, false) != 0)
-		return;
-
-	/* cp config to tmp directory */
-	USER("copy config file %s ", argv::config_file);
-
-	if(SHELL("cp %s %sconfig.bc", argv::config_file, cfg->tmp_dir) != 0){
-		USERERR("%s\n", shellerrstr);
-		return;
-	}
-
-	USEROK();
-
-	/* create backup.date in tmp directory */
-	USER("generating backup.date ");
-
-	if(file_write("backup.date", "w", "%s\n", log::stime()) != 0){
-		USERERR("backup.date: %s", strerror(errno));
-		return;
-	}
-
-	USEROK();
-
-	if(copy("", "", "backup.date", "", cfg->tmp_dir, "", CMD_MOVE, cfg->indicate) != 0)
-		return;
-
 	/* cp files w/o rsync directory */
 	if(!cfg->noconfig){
+		/* prepare tmp directory */
+		if(rmdir(cfg->tmp_dir, false) != 0)
+			return;
+
+		if(mkdir("", cfg->tmp_dir, false) != 0)
+			return;
+
+		/* cp config to tmp directory */
+		USER("copy config file %s ", argv::config_file);
+
+		if(SHELL("cp %s %sconfig.bc", argv::config_file, cfg->tmp_dir) != 0){
+			USERERR("%s\n", shellerrstr);
+			return;
+		}
+
+		USEROK();
+
+		/* create backup.date in tmp directory */
+		USER("generating backup.date ");
+
+		if(file_write("backup.date", "w", "%s\n", log::stime()) != 0){
+			USERERR("backup.date: %s", strerror(errno));
+			return;
+		}
+
+		USEROK();
+
+		if(copy("", "", "backup.date", "", cfg->tmp_dir, "", CMD_MOVE, cfg->indicate) != 0)
+			return;
+
+		/* copy files */
 		USERHEAD("[processing config files (files w/o rsync directory)");
 
 		list_for_each(dir_lst, dir){
