@@ -112,8 +112,8 @@ void handle_file(char const *base, dir_t *dir, file_t *file, bool indicate){
 					   "copy/all " BOLD "[c/C]" RESET_ATTR ", "
 					   "rsync/all " BOLD "[r/R]" RESET_ATTR ", "
 					   "move/all " BOLD "[m/M]" RESET_ATTR ", "
-					   "diff/all " BOLD "[d]" RESET_ATTR ", "
-					   "ship/all " BOLD "[s/S]" RESET_ATTR "\n",
+					   "diff " BOLD "[d]" RESET_ATTR ", "
+					   "skip/all " BOLD "[s/S]" RESET_ATTR "\n",
 					   "cCrRmMdsS",
 					   dir->path, file->name
 			);
