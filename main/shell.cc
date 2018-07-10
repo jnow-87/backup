@@ -392,6 +392,7 @@ int pshell(char const *cmd, ...){
 	/* issue cmd */
 	va_start(lst, cmd);
 	s = vsnprintf(buf, MAXLEN, cmd, lst);
+	s += snprintf(buf + s, MAXLEN - s, " 2>&1");
 	va_end(lst);
 
 	if(s >= MAXLEN){

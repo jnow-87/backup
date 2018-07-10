@@ -15,6 +15,11 @@ cfg_t::cfg_t(){
 	nodata = false;
 
 	verbosity = 0;
+
+	pre_backup_lst = 0;
+	post_backup_lst = 0;
+	pre_restore_lst = 0;
+	post_restore_lst = 0;
 }
 
 cfg_t::~cfg_t(){

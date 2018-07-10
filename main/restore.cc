@@ -4,6 +4,7 @@
 #include <cfg/cfg.h>
 #include <cfg/dir.h>
 #include <cfg/file.h>
+#include <cfg/script.h>
 #include <main/ui.h>
 #include <main/shell.h>
 #include <main/argv.h>
@@ -25,6 +26,9 @@ void restore(cfg_t *cfg, dir_t *dir_lst){
 	dir_t *dir;
 	file_t *file;
 
+
+	/* execute pre-restore scripts */
+	script_exec(cfg->pre_restore_lst, "pre-restore");
 
 	USER("restore from \"%s\"", argv::archive);
 
@@ -57,6 +61,10 @@ void restore(cfg_t *cfg, dir_t *dir_lst){
 			}
 		}
 	}
+
+	/* execute post-restore scripts */
+	script_exec(cfg->post_restore_lst, "post-restore");
+
 }
 
 

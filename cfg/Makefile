@@ -1,4 +1,4 @@
-obj-y := parser.tab.o lexer.lex.o cfg.o dir.o file.o
+obj-y := parser.tab.o lexer.lex.o cfg.o dir.o file.o script.o
 
 
 ## additional dependencies for generated headers

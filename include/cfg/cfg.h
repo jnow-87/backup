@@ -2,8 +2,11 @@
 #define CFG_H
 
 
+#include <cfg/script.h>
+
+
 /* macros */
-#define CFG_PRINT(print, cfg){ \
+#define CFG_PRINT(cfg, print){ \
 	print("\t%s\n" \
 		  "\t\tlogfile: %s\n" \
 		  "\t\toutdir: %s\n" \
@@ -52,6 +55,11 @@ public:
 		 nodata;
 
 	unsigned int verbosity;
+
+	script_t *pre_backup_lst,
+			 *post_backup_lst,
+			 *pre_restore_lst,
+			 *post_restore_lst;
 
 	cfg_t *prev,
 		  *next;

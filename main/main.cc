@@ -26,6 +26,7 @@ int main(int argc, char **argv){
 		  *cfg;
 	dir_t *dir_lst,
 		  *dit;
+	script_t *sit;
 	termios term_s, term_b;
 
 
@@ -113,18 +114,37 @@ int main(int argc, char **argv){
 
 	/* print command line and config */
 	USERHEAD("selected configuration");
-	CFG_PRINT(USER, cfg);
+	CFG_PRINT(cfg, USER);
 
 	USER2HEAD("parsed command line arguments");
 	ARGV_PRINT(USER2);
 
 	USER2HEAD("parsed configurations");
 	list_for_each(cfg_lst, cit)
-		CFG_PRINT(USER2, cit);
+		CFG_PRINT(cit, USER2);
 
 	USER2HEAD("parsed directories");
 	list_for_each(dir_lst, dit)
 		DIR_PRINT(dit, USER2);
+
+	if(argv::restore){
+		USER2HEAD("parsed pre-restore scripts");
+		list_for_each(cfg->pre_restore_lst, sit)
+			USER2("\t%s\n", sit->cmd);
+
+		USER2HEAD("parsed post-restore scripts");
+		list_for_each(cfg->post_restore_lst, sit)
+			USER2("\t%s\n", sit->cmd);
+	}
+	else{
+		USER2HEAD("parsed pre-backup scripts");
+		list_for_each(cfg->pre_backup_lst, sit)
+			USER2("\t%s\n", sit->cmd);
+
+		USER2HEAD("parsed post-backup scripts");
+		list_for_each(cfg->post_backup_lst, sit)
+			USER2("\t%s\n", sit->cmd);
+	}
 
 	/* check UID */
 	if(geteuid() != 0)

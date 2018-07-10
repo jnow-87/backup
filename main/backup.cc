@@ -4,6 +4,7 @@
 #include <cfg/cfg.h>
 #include <cfg/dir.h>
 #include <cfg/file.h>
+#include <cfg/script.h>
 #include <main/ui.h>
 #include <main/shell.h>
 #include <main/argv.h>
@@ -27,8 +28,13 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 	if(!yesno("continue backup?"))
 		return;
 
+	/* execute pre-backup scripts */
+	script_exec(cfg->pre_backup_lst, "pre-backup");
+
 	/* cp files w/o rsync directory */
 	if(!cfg->noconfig){
+		USERHEAD("[prepare backup]");
+
 		/* prepare tmp directory */
 		if(rmdir(cfg->tmp_dir, false) != 0)
 			return;
@@ -40,7 +46,7 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 		USER("copy config file %s ", argv::config_file);
 
 		if(SHELL("cp %s %sconfig.bc", argv::config_file, cfg->tmp_dir) != 0){
-			USERERR("%s\n", shellerrstr);
+			USERERR("%s", shellerrstr);
 			return;
 		}
 
@@ -96,4 +102,7 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 			}
 		}
 	}
+
+	/* execute post-backup scripts */
+	script_exec(cfg->post_backup_lst, "post-backup");
 }

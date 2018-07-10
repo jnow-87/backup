@@ -10,7 +10,7 @@ let b:current_syntax = "bc"
 " keywords
 syntax keyword	bcType			dir config var
 
-syntax match	bcMember		"\.\(archive\|out-dir\|tmp-dir\|log-file\|rsync-dir\|verbose\|indicate\|preserve\|file\|name\|noconfig\|nodata\)"
+syntax match	bcMember		"\.\(archive\|out-dir\|tmp-dir\|log-file\|rsync-dir\|verbose\|indicate\|preserve\|file\|name\|noconfig\|nodata\|pre-backup\|post-backup\|pre-restore\|post-restore\)"
 
 " {}-block
 syntax region	bcBlock				start="{" end="}" transparent fold

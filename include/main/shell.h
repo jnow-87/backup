@@ -4,7 +4,7 @@
 
 /* macros */
 #define SHELL(cmd, ...) \
-	pshell(cmd " 2>&1", ##__VA_ARGS__)
+	pshell(cmd, ##__VA_ARGS__)
 
 #define SYSTEM(cmd, ...) \
 	sshell(cmd " 2>&1", ##__VA_ARGS__)

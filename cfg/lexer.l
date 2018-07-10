@@ -56,6 +56,10 @@
 ".noconfig"						{ return CFG_NOCONFIG; }
 ".nodata"						{ return CFG_NODATA; }
 ".verbose"						{ return CFG_VERBOSE; }
+".pre-backup"					{ return CFG_PRE_BACKUP; }
+".post-backup"					{ return CFG_POST_BACKUP; }
+".pre-restore"					{ return CFG_PRE_RESTORE; }
+".post-restore"					{ return CFG_POST_RESTORE; }
 
 	/* directory options */
 ".file"							{ return DIR_FILE; }
@@ -74,7 +78,7 @@
 [a-zA-Z_][a-zA-Z_\-0-9]*		{ cfglval.c_str.s = cfgtext; cfglval.c_str.len = cfgleng; return IDFR; }
 
 	/* string */
-\"[a-zA-Z0-9._/\-\. @]+\"		{ cfglval.c_str.s = cfgtext + 1; cfglval.c_str.len = cfgleng - 2; return STRING; }
+\"[a-zA-Z0-9._/\-\. @>;&|]+\"		{ cfglval.c_str.s = cfgtext + 1; cfglval.c_str.len = cfgleng - 2; return STRING; }
 
 	/* integer */
 [0-9]*							{ cfglval.i = atoi(cfgtext); return INT; }

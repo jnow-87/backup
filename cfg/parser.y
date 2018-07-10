@@ -51,6 +51,7 @@
 	/* prototypes */
 	extern void cfgunput(char c);
 	static int cfgerror(char *file, cfg_t **cfg_lst, dir_t **dir_lst, bool *valid, char const *s);
+	static void scriptalloc(script_t **lst, string *cmd);
 %}
 
 %code requires{
@@ -159,6 +160,10 @@
 %token CFG_NODATA
 %token CFG_VERBOSE
 %token CFG_LOGFILE
+%token CFG_PRE_BACKUP
+%token CFG_POST_BACKUP
+%token CFG_PRE_RESTORE
+%token CFG_POST_RESTORE
 
 // directory options
 %token DIR_FILE
@@ -231,6 +236,10 @@ config-member :	%empty												{ $$ = new cfg_t(); cfgunput(','); }
 			  |	config-member ',' CFG_NOCONFIG '=' integer			{ $$->noconfig = $5; }
 			  |	config-member ',' CFG_NODATA '=' integer			{ $$->nodata = $5; }
 			  |	config-member ',' CFG_VERBOSE '=' integer			{ $$->verbosity = $5; }
+			  | config-member ',' CFG_PRE_BACKUP '=' string			{ $$ = $1; scriptalloc(&($$->pre_backup_lst), $5); delete $5; }
+			  | config-member ',' CFG_POST_BACKUP '=' string		{ $$ = $1; scriptalloc(&($$->post_backup_lst), $5); delete $5; }
+			  | config-member ',' CFG_PRE_RESTORE '=' string		{ $$ = $1; scriptalloc(&($$->pre_restore_lst), $5); delete $5; }
+			  | config-member ',' CFG_POST_RESTORE '=' string		{ $$ = $1; scriptalloc(&($$->post_restore_lst), $5); delete $5; }
 			  ;
 
 /* directory */
@@ -329,7 +338,17 @@ integer :	INT														{ $$ = $1; }
 %%
 
 
-int cfgerror(char *file, cfg_t **cfg_lst, dir_t **dir_lst, bool *valid, char const *s){
+static int cfgerror(char *file, cfg_t **cfg_lst, dir_t **dir_lst, bool *valid, char const *s){
 	ERROR(FG_VIOLETT "%s" RESET_ATTR ":" FG_GREEN "%d:%d" RESET_ATTR " token \"%s\" -- %s\n", file, cfglloc.first_line, cfglloc.first_column, cfgtext, s);
 	return 0;
+}
+
+static void scriptalloc(script_t **lst, string *cmd){
+	script_t *scr;
+
+
+	scr = new script_t;
+	scr->cmd = stralloc((char*)(cmd->c_str()), cmd->length(), PF_FILE);
+
+	list_add_tail(lst, scr);
 }
