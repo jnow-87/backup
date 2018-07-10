@@ -37,7 +37,8 @@ int unlink(char const *dir, char const *file, bool indicate);
 int rmdir(char const *dir, bool indicate);
 int mkdir(char const *base, char const *dir, bool indicate);
 int tar(char const *mode, char const *archive, char const *dir, char const *opt, bool indicate);
-int diff(char const *sbase, char const *sdir, char const *sfile, char const *dbase, char const *ddir, char const *dfile);
+int diff_silent(char const *sbase, char const *sdir, char const *sfile, char const *dbase, char const *ddir, char const *dfile);
+int diff_interactive(char const *sbase, char const *sdir, char const *sfile, char const *dbase, char const *ddir, char const *dfile);
 
 ftype_t ftype(char const *base, char const *dir, char const *file);
 int file_write(char const *file, char const *flags, char const *fmt, ...);

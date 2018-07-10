@@ -114,6 +114,12 @@ void handle_file(char const *base, dir_t *dir, file_t *file, bool indicate){
 
 	/* get and execute user action */
 	while(!file_done){
+		if(diff_silent(base, sdir, sfile, dbase, ddir, dfile) == 0){
+			USER("skip %s%s " FG_GREEN "(no diff to destination)" RESET_ATTR "\n", sdir, sfile);
+			file_done = true;
+			continue;
+		}
+
 		// get user selection
 		if(!(copy_all || rsync_all || move_all || skip_all) || c == 0){
 			c = uinput("%s%s: "
@@ -161,7 +167,7 @@ void handle_file(char const *base, dir_t *dir, file_t *file, bool indicate){
 
 		// diff
 		case 'd':
-			diff(base, sdir, sfile, dbase, ddir, dfile);
+			diff_interactive(base, sdir, sfile, dbase, ddir, dfile);
 			break;
 
 		// skip

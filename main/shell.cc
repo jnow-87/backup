@@ -329,7 +329,26 @@ int file_write(char const *file, char const *flags, char const *fmt, ...){
 	return 0;
 }
 
-int diff(char const *sbase, char const *sdir, char const *sfile, char const *dbase, char const *ddir, char const *dfile){
+int diff_silent(char const *sbase, char const *sdir, char const *sfile, char const *dbase, char const *ddir, char const *dfile){
+	int r;
+
+
+	/* check arguments */
+	// init pointer
+	sbase = STRNULL(sbase);
+	sdir = STRNULL(sdir);
+	sfile = STRNULL(sfile);
+	dbase = STRNULL(dbase);
+	ddir = STRNULL(ddir);
+	dfile = STRNULL(dfile);
+
+	/* perform diff */
+	r = SYSTEM("diff -rq %s%s%s %s%s%s 1>/dev/null 2>/dev/null", sbase, sdir, sfile, dbase, ddir, dfile);
+
+	return (r != 0);
+}
+
+int diff_interactive(char const *sbase, char const *sdir, char const *sfile, char const *dbase, char const *ddir, char const *dfile){
 	char const *difftool;
 	int r;
 
@@ -369,7 +388,7 @@ int diff(char const *sbase, char const *sdir, char const *sfile, char const *dba
 		return -1;
 	}
 
-	r = SYSTEM("%s %s%s%s %s%s%s", difftool, sbase, sdir, sfile, dbase, ddir, dfile);
+	r = SYSTEM("%s %s%s%s %s%s%s 2>/dev/null", difftool, sbase, sdir, sfile, dbase, ddir, dfile);
 
 	if(r != 0){
 		USERERR("%s", shellerrstr);
