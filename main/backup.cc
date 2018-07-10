@@ -8,6 +8,7 @@
 #include <main/ui.h>
 #include <main/shell.h>
 #include <main/argv.h>
+#include <version.h>
 #include <errno.h>
 #include <string.h>
 
@@ -52,17 +53,23 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 
 		USEROK();
 
-		/* create backup.date in tmp directory */
-		USER("generating backup.date ");
+		/* create backup.info in tmp directory */
+		USER("generating backup.info ");
 
-		if(file_write("backup.date", "w", "%s\n", log::stime()) != 0){
-			USERERR("backup.date: %s", strerror(errno));
+		if(file_write("backup.info", "w",
+			"date and time:\n\t%s\n\n"
+			"version info:\n%s\n"
+			,
+			log::stime(),
+			VERSION) != 0
+		  ){
+			USERERR("backup.info: %s", strerror(errno));
 			return;
 		}
 
 		USEROK();
 
-		if(copy("", "", "backup.date", "", cfg->tmp_dir, "", CMD_MOVE, cfg->indicate) != 0)
+		if(copy("", "", "backup.info", "", cfg->tmp_dir, "", CMD_MOVE, cfg->indicate) != 0)
 			return;
 
 		/* copy files */

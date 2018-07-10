@@ -137,7 +137,7 @@ char *log::stime(void){
 
 	t = time(0);
 	ts = localtime(&t);
-	strftime(s, 80, "%Y.%m.%d@%H.%M.%S", ts);
+	strftime(s, 80, "%Y.%m.%d@%H:%M:%S", ts);
 
 	return s;
 }
