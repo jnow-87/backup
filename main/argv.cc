@@ -30,7 +30,7 @@
 
 /* class definition */
 char const *argv::config_file = CONFIG_CONFIG_FILE;
-char const *argv::config = CONFIG_CONFIG;
+char const *argv::config = CONFIG_CONFIG_NAME;
 char *argv::out_dir = 0;
 char *argv::tmp_dir = 0;
 char *argv::archive = 0;
@@ -190,7 +190,7 @@ void argv::help(char *pname){
 		   "\t%15.15s\t%s\n"
 		   "\t%15.15s\t%s\n",
 		   "config-file", CONFIG_CONFIG_FILE,
-		   "config", CONFIG_CONFIG,
+		   "config", CONFIG_CONFIG_NAME,
 		   "log-file", CONFIG_LOG_FILE,
 		   "out-dir", CONFIG_OUT_DIR,
 		   "tmp-dir", CONFIG_TMP_DIR

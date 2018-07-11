@@ -8,7 +8,7 @@ config CONFIG_FILE
 	qstring "config file (default)"
 	default "/etc/backup.bc"
 
-config CONFIG
+config CONFIG_NAME
 	qstring "config (default)"
 	default "default"
 
