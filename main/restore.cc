@@ -28,7 +28,7 @@ void restore(cfg_t *cfg, dir_t *dir_lst){
 
 
 	/* execute pre-restore scripts */
-	script_exec(cfg->pre_restore_lst, "pre-restore");
+	script_exec(cfg->pre_restore_lst, "pre-restore", cfg->indicate);
 
 	USER("restore from \"%s\"", argv::archive);
 
@@ -63,7 +63,7 @@ void restore(cfg_t *cfg, dir_t *dir_lst){
 	}
 
 	/* execute post-restore scripts */
-	script_exec(cfg->post_restore_lst, "post-restore");
+	script_exec(cfg->post_restore_lst, "post-restore", cfg->indicate);
 
 }
 

@@ -16,7 +16,7 @@ public:
 
 
 /* prototypes */
-void script_exec(script_t *lst, char const *info);
+void script_exec(script_t *lst, char const *info, bool indicate);
 
 
 #endif // SCRIPT_H

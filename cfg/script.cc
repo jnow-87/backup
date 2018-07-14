@@ -13,7 +13,7 @@ script_t::~script_t(){
 	delete cmd;
 }
 
-void script_exec(script_t *lst, char const *info){
+void script_exec(script_t *lst, char const *info, bool indicate){
 	script_t *sit;
 
 
@@ -22,7 +22,8 @@ void script_exec(script_t *lst, char const *info){
 	list_for_each(lst, sit){
 		USER("%s ", sit->cmd);
 
-		if(SHELL(sit->cmd) != 0)	USERERR("%s", shellerrstr);
-		else						USEROK();
+		if(indicate)					USERINDICATE();
+		else if(SHELL(sit->cmd) != 0)	USERERR("%s", shellerrstr);
+		else							USEROK();
 	}
 }

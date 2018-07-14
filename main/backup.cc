@@ -30,7 +30,7 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 		return;
 
 	/* execute pre-backup scripts */
-	script_exec(cfg->pre_backup_lst, "pre-backup");
+	script_exec(cfg->pre_backup_lst, "pre-backup", cfg->indicate);
 
 	/* cp files w/o rsync directory */
 	if(!cfg->noconfig){
@@ -111,5 +111,5 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 	}
 
 	/* execute post-backup scripts */
-	script_exec(cfg->post_backup_lst, "post-backup");
+	script_exec(cfg->post_backup_lst, "post-backup", cfg->indicate);
 }

@@ -9,7 +9,7 @@
 
 /* macros */
 #define USERINDICATE() \
-	USER(FG_YELLOW "[INDICATE]" RESET_ATTR "\n");
+	USER(FG_YELLOW "[INDICATE]" RESET_ATTR "\n")
 
 #define USEROK() \
 	USER(FG_GREEN "[OK]" RESET_ATTR "\n")
