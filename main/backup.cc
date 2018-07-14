@@ -83,19 +83,17 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 		}
 
 		/* cp to out directory or generate archive */
+		USERHEAD("[copy to output directory \"%s\"]", cfg->out_dir);
+
 		if(mkdir("", cfg->out_dir, cfg->indicate) != 0)
 			return;
 
 		if(cfg->archive){
 			snprintf(name, MAXLEN, "%sbackup_%s.tar.gz", cfg->out_dir, log::stime());
-
-			USERHEAD("[creating backup archive \"%s\"]", name);
 			tar("czf", name, cfg->tmp_dir, ".", cfg->indicate);
 		}
-		else{
-			USERHEAD("[copy to output directory \"%s\"]", cfg->tmp_dir);
+		else
 			copy("", cfg->tmp_dir, "*", "", cfg->out_dir, "", CMD_RSYNC, cfg->indicate);
-		}
 	}
 
 	/* cp files with rsync directory */
