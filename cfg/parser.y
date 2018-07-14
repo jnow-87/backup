@@ -173,7 +173,9 @@
 
 /* non-terminals */
 %type <i> destructor
+%type <cfg> config-list
 %type <cfg> config-member
+%type <dir> dir-list
 %type <dir> dir-member
 %type <file> file-member
 %type <var> variable
@@ -194,8 +196,8 @@ start :	%empty														{ }
 	  ;
 
 /* statement */
-stmt :	SPEC_CFG IDFR '=' '{' config-member '}'						{ $5->name = stralloc($2.s, $2.len, 0); list_add_tail(cfg_lst, $5); }
-	 |	SPEC_DIR STRING '=' '{' dir-member '}'						{
+stmt :	SPEC_CFG IDFR '=' '{' config-list '}'						{ $5->name = stralloc($2.s, $2.len, 0); list_add_tail(cfg_lst, $5); }
+	 |	SPEC_DIR STRING '=' '{' dir-list '}'						{
 	 																	$5->path = stralloc($2.s, $2.len, PF_DIR | PF_ABS);
 																		list_add_tail(dir_lst, $5);
 
@@ -225,6 +227,10 @@ stmt :	SPEC_CFG IDFR '=' '{' config-member '}'						{ $5->name = stralloc($2.s, 
 	 ;
 
 /* config */
+config-list :	config-member										{ $$ = $1; }
+			|	config-member ','									{ $$ = $1; }
+			;
+
 config-member :	%empty												{ $$ = new cfg_t(); cfgunput(','); }
 			  |	config-member ',' CFG_OUT_DIR '=' string			{ $$->out_dir = stralloc((char*)($5->c_str()), $5->length(), PF_DIR); delete $5; }
 			  |	config-member ',' CFG_TMP_DIR '=' string			{ $$->tmp_dir = stralloc((char*)($5->c_str()), $5->length(), PF_DIR); delete $5; }
@@ -243,8 +249,13 @@ config-member :	%empty												{ $$ = new cfg_t(); cfgunput(','); }
 			  ;
 
 /* directory */
+dir-list :	dir-member												{ $$ = $1; }
+		 |	dir-member ','											{ $$ = $1; }
+		 ;
+
 dir-member :	%empty												{ $$ = new dir_t(); cfgunput(','); }
 		   |	dir-member ',' DIR_FILE '=' '{' file-member '}'		{ $$ = $1; list_add_tail(&($$->file_lst), $6); }
+		   ;
 
 file-member :	%empty												{ $$ = new file_t(); cfgunput(','); }
 			|	file-member ',' FILE_NAME '=' string				{
