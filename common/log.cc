@@ -126,18 +126,23 @@ void log::vprint(log_level_t lvl, char const *msg, va_list lst){
 /**
  * \brief	get current time/date as string
  *
+ * \param	date_sep	character to use to separate date elements
+ * \param	time_sep	character to use to separate time elements
+ *
  * \return	pointer to time/date string - string is allocated statically and
  * 			hence must not be freed
  */
-char *log::stime(void){
+char *log::stime(char date_sep, char time_sep){
 	static char s[80];
+	char fmt[20];
 	time_t t;
 	tm *ts;
 
 
 	t = time(0);
 	ts = localtime(&t);
-	strftime(s, 80, "%Y.%m.%d@%H:%M:%S", ts);
+	snprintf(fmt, 20, "%%Y%c%%m%c%%d@%%H%c%%M%c%%S", date_sep, date_sep, time_sep, time_sep);
+	strftime(s, 80, fmt, ts);
 
 	return s;
 }

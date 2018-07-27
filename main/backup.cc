@@ -89,7 +89,7 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 			return;
 
 		if(cfg->archive){
-			snprintf(name, MAXLEN, "%sbackup_%s.tar.gz", cfg->out_dir, log::stime());
+			snprintf(name, MAXLEN, "%sbackup_%s.tar.gz", cfg->out_dir, log::stime('.', '-'));
 			tar("czf", name, cfg->tmp_dir, ".", cfg->indicate);
 		}
 		else
