@@ -14,6 +14,7 @@
 	#include <string.h>
 	#include <errno.h>
 	#include <map>
+	#include <string>
 
 
 	/* macros */
