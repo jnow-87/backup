@@ -35,6 +35,7 @@ yaccflags := $(YACCFLAGS) $(CONFIG_YACCFLAGS)
 lexflags := $(LEXFLAGS) $(CONFIG_LEXFLAGS)
 gperfflags := $(GPERFFLAGS) $(CONFIG_GPERFFLAGS)
 
+
 ###################
 ###   targets   ###
 ###################
@@ -42,6 +43,7 @@ gperfflags := $(GPERFFLAGS) $(CONFIG_GPERFFLAGS)
 ####
 ## build
 ####
+
 .PHONY: all
 ifeq ($(CONFIG_BUILD_DEBUG),y)
 all: cflags += -g -O0
@@ -54,6 +56,7 @@ all: $(lib) $(bin)
 ####
 ## cleanup
 ####
+
 .PHONY: clean
 clean:
 	$(rm) $(filter-out $(patsubst %/,%,$(dir $(build_tree)/$(scripts_dir))),$(wildcard $(build_tree)/*))
@@ -65,20 +68,15 @@ distclean:
 ####
 ## install
 ####
-.PHONY: install-user
-install-user: all
-	$(mkdir) -p ~/bin
-	$(cp) -au $(build_tree)/main/backup ~/bin/
-	$(cp) cfg/bc.vim ~/.vim/syntax
 
-.PHONY: install-system
-install-system: all
-	$(mkdir) -p /usr/bin
-	$(cp) -au $(build_tree)/main/backup /usr/bin/
-	$(cp) cfg/bc.vim /root/.vim/syntax
+include $(scripts_dir)/install.make
+
+.PHONY: install
+install: all
+	$(call install,$(build_tree)/main/backup)
+	$(call install,cfg/bc.vim,~/.vim/syntax/)
 
 .PHONY: uninstall
 uninstall:
-	$(rm) -rf /usr/bin/backup
-	$(rm) -rf ~/bin/backup
-
+	$(call uninstall,$(PREFIX)/backup)
+	$(call uninstall,~/.vim/syntax/bc.vim)
