@@ -1,0 +1,17 @@
+#
+# Automatically generated file; DO NOT EDIT.
+# backup configuration
+#
+CONFIG_LOG_FILE="/var/log/backup.log"
+CONFIG_CONFIG_FILE="/etc/backup.bc"
+CONFIG_CONFIG_NAME="default"
+CONFIG_OUT_DIR="/tmp/backup/out"
+CONFIG_TMP_DIR="/tmp/backup/tmp"
+CONFIG_CP_ARGS="-ra"
+CONFIG_RSYNC_ARGS="-rauAXH --delete"
+CONFIG_MV_ARGS=""
+CONFIG_DIFF_TOOL_FILE="vimdiff"
+CONFIG_DIFF_TOOL_DIR="vimdiffdir"
+# CONFIG_BUILD_RELEASE is not set
+CONFIG_BUILD_DEBUG=y
+CONFIG_BUILD_TYPE=debug
