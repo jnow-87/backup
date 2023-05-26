@@ -20,11 +20,11 @@ default_build_tree := build/$(CONFIG_BUILD_TYPE)/
 src_dirs := main/ testing/
 
 # include build system Makefile
-include $(scripts_dir)/Makefile.inc
+include $(scripts_dir)/main.make
 
 # init default flags
 cflags := $(CFLAGS) $(CONFIG_CFLAGS) -Wall -O2
-cxxflags := $(CXXFLAGS) $(CONFIG_CXXFLAGS) -std=c++11 -Wall -O2
+cxxflags := $(CXXFLAGS) $(CONFIG_CXXFLAGS) -Wall -O2
 cppflags := $(CPPFLAGS) $(CONFIG_CPPFLAGS) -I"include/" -I"$(build_tree)/"
 ldflags := $(LDFLAGS) $(CONFIG_LDFLAGS)
 ldrflags := $(LDRFLAGS) $(CONFIG_LDRFLAGS)
