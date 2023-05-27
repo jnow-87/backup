@@ -137,6 +137,10 @@ int argv::parse(int argc, char **argv){
 			verbosity = atoi(GET_ARG());
 			break;
 
+		case OPT_BATCH:
+			set.batch_mode = 1;
+			break;
+
 		case OPT_HELP:
 			help(argv[0]);
 			break;

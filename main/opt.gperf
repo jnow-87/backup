@@ -40,6 +40,7 @@
 		{ .id = OPT_DOCONFIG,		.long_name = "--doconfig",		.short_name = "",	.arg = "",						.help = "backup/restore config files (files without rsync-dir)" },
 		{ .id = OPT_NODATA,			.long_name = "--nodata",		.short_name = "",	.arg = "",						.help = "do not backup/restore data files (files with rsync-dir)" },
 		{ .id = OPT_DODATA,			.long_name = "--dodata",		.short_name = "",	.arg = "",						.help = "backup/restore data files (files with rsync-dir)" },
+		{ .id = OPT_BATCH,			.long_name = "--batch",			.short_name = "",	.arg = "",						.help = "enable batch mode, i.e. disable user prompts" },
 	};
 %}
 
@@ -75,4 +76,5 @@ struct opt_t;
 --doconfig,		desc + 13
 --nodata,		desc + 14
 --dodata,		desc + 15
+--batch,		desc + 16
 %%

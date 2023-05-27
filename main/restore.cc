@@ -70,7 +70,7 @@ void restore(cfg_t *cfg, dir_t *dir_lst){
 
 /* local functions */
 void handle_file(char const *base, dir_t *dir, file_t *file, bool indicate){
-	static char c = 0;
+	static char c = argv::set.batch_mode ? 'M' : 0;
 	bool file_done;
 	char const *sdir,
 			   *sfile,
@@ -121,7 +121,7 @@ void handle_file(char const *base, dir_t *dir, file_t *file, bool indicate){
 		}
 
 		// get user selection
-		if(!(copy_all || rsync_all || move_all || skip_all) || c == 0){
+		if((!(copy_all || rsync_all || move_all || skip_all) || c == 0) && !argv::set.batch_mode){
 			c = uinput("%s%s: "
 					   "copy/all " BOLD "[c/C]" RESET_ATTR ", "
 					   "rsync/all " BOLD "[r/R]" RESET_ATTR ", "

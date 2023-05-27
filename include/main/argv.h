@@ -45,7 +45,8 @@ public:
 					 nodata:1,
 					 out_dir:1,
 					 tmp_dir:1,
-					 log_file:1;
+					 log_file:1,
+					 batch_mode:1;
 	} set_t;
 
 	/* public functions */

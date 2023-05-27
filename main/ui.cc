@@ -1,4 +1,5 @@
 #include <common/log.h>
+#include <main/argv.h>
 #include <unistd.h>
 #include <stdarg.h>
 #include <string.h>
@@ -8,6 +9,9 @@
 bool yesno(char const *text){
 	char c;
 
+
+	if(argv::set.batch_mode)
+		return true;
 
 	if(text == 0)
 		return false;

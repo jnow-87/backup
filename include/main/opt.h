@@ -24,6 +24,7 @@ typedef enum{
 	OPT_DOCONFIG,
 	OPT_NODATA,
 	OPT_DODATA,
+	OPT_BATCH,
 } opt_id_t;
 
 typedef struct{
