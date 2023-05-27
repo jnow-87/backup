@@ -67,10 +67,13 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 		USER("generating backup.info ");
 
 		if(file_write("backup.info", "w",
-			"date and time:\n\t%s\n\n"
+			"date and time: %s\n"
+			"config: %s\n"
+			"\n"
 			"version info:\n%s\n"
 			,
 			log::stime(),
+			argv::config,
 			VERSION) != 0
 		  ){
 			USERERR("backup.info: %s", strerror(errno));
