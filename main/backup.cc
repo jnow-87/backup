@@ -9,8 +9,10 @@
 #include <main/shell.h>
 #include <main/argv.h>
 #include <version.h>
+#include <limits.h>
 #include <errno.h>
 #include <string.h>
+#include <stdlib.h>
 
 
 /**
@@ -20,7 +22,7 @@
  *
  */
 void backup(cfg_t *cfg, dir_t *dir_lst){
-	char name[MAXLEN];
+	char name[MAXLEN > PATH_MAX ? MAXLEN : PATH_MAX];
 	dir_t *dir;
 	file_t *file;
 
@@ -52,6 +54,14 @@ void backup(cfg_t *cfg, dir_t *dir_lst){
 		}
 
 		USEROK();
+
+		/* copy the backup binary itself */
+		if(realpath("/proc/self/exe", name) == 0){
+			USERERR("cannot resolve backup binary path %s", strerror(errno));
+			return;
+		}
+
+		copy("", "", name, cfg->tmp_dir, "", "backup", CMD_COPY, cfg->indicate);
 
 		/* create backup.info in tmp directory */
 		USER("generating backup.info ");
