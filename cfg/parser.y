@@ -1,4 +1,6 @@
 %define api.prefix {cfg}
+%define parse.error verbose
+%define parse.lac full
 %locations
 
 /* header */
@@ -18,9 +20,6 @@
 
 
 	/* macros */
-	// extended error messages
-	#define YYERROR_VERBOSE
-
 	// parser error message
 	#define PARSER_ERROR(s, ...){ \
 		ERROR(FG_VIOLETT "%s" RESET_ATTR ":" FG_GREEN "%d:%d " RESET_ATTR s, file, cfglloc.first_line, cfglloc.first_column, ##__VA_ARGS__); \
